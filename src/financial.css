@@ -1,0 +1,11 @@
+.record-picker{display:grid;grid-template-columns:minmax(170px,1fr) minmax(240px,3fr);gap:18px;padding:22px;margin-bottom:22px}
+.record-identity{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:24px;margin-bottom:22px}
+.record-identity .eyebrow{margin-bottom:10px}.record-identity h2{font-size:23px}.record-identity p:last-child{font-size:12px;color:var(--muted);margin-bottom:0}
+.record-section{margin-top:22px}.record-section .panel-heading{flex-wrap:wrap}
+.statement-filters{padding:24px;margin-bottom:22px}.filter-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px}.filter-heading h2{margin:0}
+.financial-filter-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}.financial-search{grid-column:1/-1}
+.financial-filter-grid select,.record-picker select{min-width:0;text-overflow:ellipsis}.financial-filter-grid label,.record-picker label{min-width:0}
+.dashboard-payable{display:flex;align-items:center;justify-content:space-between;gap:25px;padding:23px 24px;margin-bottom:22px}.dashboard-payable .eyebrow{margin-bottom:8px}.dashboard-payable p:last-child{margin:0;font-size:12px;color:var(--muted)}.dashboard-payable>strong{font-size:25px;font-family:Manrope,sans-serif}.dashboard-payable .inline-link{flex-shrink:0}
+.property-financial-link{display:flex;justify-content:space-between;min-height:44px;padding:10px 0;border-top:1px solid var(--border);margin-top:10px}
+@media(max-width:1200px){.financial-filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-payable{flex-wrap:wrap}.record-picker{grid-template-columns:1fr 2fr}}
+@media(max-width:700px){.record-picker{grid-template-columns:1fr;padding:20px}.record-identity{align-items:flex-start;flex-direction:column;padding:20px}.financial-filter-grid{grid-template-columns:1fr}.statement-filters{padding:20px}.filter-heading{align-items:flex-start;flex-direction:column}.financial-record-metrics{grid-template-columns:1fr 1fr}.dashboard-payable{padding:20px;align-items:flex-start;gap:14px}.dashboard-payable>div{width:100%}.dashboard-payable .inline-link{min-height:44px}.record-section .panel-heading>.inline-link{min-height:44px}}

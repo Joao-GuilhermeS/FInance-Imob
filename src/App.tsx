@@ -8,6 +8,7 @@ import { emptyData, roleNames } from './lib/domain'
 import type { Data, Profile } from './lib/domain'
 import { Auth } from './components/Auth'
 const Workspace = lazy(() => import('./pages/Workspace').then(module => ({ default: module.Workspace })))
+const FinancialRecords = lazy(() => import('./pages/FinancialRecords').then(module => ({ default: module.FinancialRecords })))
 const navigation = [
   { path: '/', label: 'Visão geral', icon: LayoutDashboard, roles: ['admin','finance','sales','works'] },
   { path: '/imoveis', label: 'Imóveis', icon: Building2, roles: ['admin','finance','sales','works'] },
@@ -15,6 +16,7 @@ const navigation = [
   { path: '/vendas', label: 'Vendas e contratos', icon: ClipboardList, roles: ['admin','finance','sales'] },
   { path: '/parcelas', label: 'Parcelas e recebimentos', icon: ArrowDownLeft, roles: ['admin','finance'] },
   { path: '/financeiro', label: 'Financeiro', icon: Wallet, roles: ['admin','finance'] },
+  { path: '/fichas', label: 'Fichas financeiras', icon: ClipboardList, roles: ['admin','finance'] },
   { path: '/obras', label: 'Obras e custos', icon: HardHat, roles: ['admin','finance','works'] },
   { path: '/alertas', label: 'Central de alertas', icon: Bell, roles: ['admin','finance'] },
   { path: '/configuracoes', label: 'Configurações', icon: Settings, roles: ['admin','finance','sales','works'] },
@@ -47,8 +49,8 @@ function Shell({ session }: { session: Session }) {
     <div className="sidebar-bottom"><div className="support"><CircleHelp size={20} /><div><strong>Tudo conectado.</strong><small>Uma operação, uma visão.</small></div></div><div className="user"><span className="user-avatar">{profile?.name.slice(0, 2).toUpperCase() || 'IM'}</span><div><strong>{profile?.name || 'Carregando…'}</strong><small>{profile ? roleNames[profile.role] : ''}</small></div><button className="icon-button" aria-label="Sair da conta" onClick={() => void logout()}><LogOut size={18} /></button></div></div>
   </aside>{menu ? <button className="menu-overlay" aria-label="Fechar menu" onClick={() => setMenu(false)} /> : null}
   <div className="main-wrap"><header className="topbar"><div><button className="mobile-menu icon-button" aria-label="Abrir menu" onClick={() => setMenu(true)}><Menu /></button><span className="breadcrumb">Workspace <span>/</span> <strong>{navigation.find(item => item.path === location.pathname)?.label || 'Visão geral'}</strong></span></div><div className="topbar-right"><span className="live"><i />Dados centralizados</span><button className="icon-button" onClick={() => void reload()} disabled={loading} aria-label="Atualizar dados"><RefreshCw size={18} className={loading ? 'spin' : ''} /></button><NavLink className="icon-button" to={profile?.role === 'works' || profile?.role === 'sales' ? '/' : '/alertas'} aria-label="Ver alertas"><Bell size={19} /></NavLink></div></header>
-    <main id="main" className="content">{error ? <div role="alert" className="notice error">Não foi possível atualizar os dados: {error}<button className="secondary" onClick={() => void reload()}>Tentar novamente</button></div> : null}
-      {loading ? <div className="loading" role="status"><RefreshCw className="spin" />Carregando sua operação…</div> : profile ? <Routes>{navigation.filter(item => item.roles.includes(profile.role)).map(item => <Route key={item.path} path={item.path} element={<Workspace key={item.path} path={item.path} data={data} profile={profile} refresh={reload} />} />)}<Route path="*" element={<Navigate to="/" replace />} /></Routes> : null}
+    <main id="main" className="content" aria-busy={loading}>{error ? <div role="alert" className="notice error">Não foi possível atualizar os dados: {error}<button className="secondary" onClick={() => void reload()}>Tentar novamente</button></div> : null}
+      {loading && !profile ? <div className="loading" role="status"><RefreshCw className="spin" />Carregando sua operação…</div> : profile ? <Routes>{navigation.filter(item => item.roles.includes(profile.role)).map(item => <Route key={item.path} path={item.path} element={item.path === '/fichas' ? <FinancialRecords data={data} /> : <Workspace key={item.path} path={item.path} data={data} profile={profile} refresh={reload} />} />)}<Route path="*" element={<Navigate to="/" replace />} /></Routes> : null}
       <footer className="page-footer"><span>Finance Imob</span><span>Organização para crescer <ArrowUpRight size={13} /></span></footer>
     </main></div></div>
 }

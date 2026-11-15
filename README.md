@@ -2,6 +2,8 @@
 
 Primeira implementação da gestão de imóveis, vendas, parcelas, caixa e custos de obras. React + TypeScript + Vite, integrado ao Supabase.
 
+Agora inclui fichas financeiras por cliente e imóvel, filtros combinados no extrato, exportação da seleção em CSV e contas a pagar no dashboard. As fichas ficam no menu **Fichas financeiras** e nos atalhos das telas **Imóveis** e **Clientes e fornecedores**, para os perfis administrador e financeiro.
+
 ## Executar
 
 Requer Node.js 24 e npm.

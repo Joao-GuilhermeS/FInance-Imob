@@ -17,6 +17,10 @@ Aplicação React/TypeScript responsiva, com autenticação por e-mail/senha e b
 - Central de alertas calculada ao consultar; antecedência individual configurável.
 - Contratos, documentos de imóveis e comprovantes de despesas privados (PDF/JPG/PNG, até 10 MB). Links assinados com validade curta.
 - Recibo consolidado por parcela para impressão/PDF e extrato em CSV.
+- Fichas financeiras de cliente e imóvel, acessíveis pelo menu e por atalhos nos cadastros; vendas, parcelas, saldo pendente, atraso e histórico de pagamentos/estornos.
+- Na ficha do imóvel: aquisição e custos incorridos, obrigações em aberto, resultado previsto da venda e resultado de caixa registrado, sem duplicar custos nem misturar saldo inicial.
+- Extrato com filtros combináveis de período, conta, pessoa, imóvel, segmento, categoria, operação e busca; totais e CSV refletem a seleção. A atualização dos dados preserva os filtros da tela.
+- Contas a pagar no dashboard, com total pendente e saldo em atraso; no financeiro, vencimentos ordenados e pagamento parcial identificado.
 
 ## Regras financeiras
 
@@ -45,12 +49,12 @@ As permissões são verificadas por RLS, privilégios de coluna e funções auto
 ## Próximos incrementos para fechar o MVP aprovado
 
 1. Completar fichas cadastrais (RG, nascimento, estado civil, profissão, lote/quadra/metragem, responsáveis e datas da obra) e edição de pessoas.
-2. Ficha financeira consolidada por cliente e imóvel, histórico de alterações consultável e recibo individual por pagamento.
+2. Histórico de alterações cadastrais/auditoria consultável e recibo individual por pagamento. As fichas financeiras consolidadas e o histórico de movimentações já estão disponíveis.
 3. Compra com múltiplos itens e preço unitário, categorias configuráveis, rateio e pagamentos da aquisição sem duplicação de custo.
 4. Reservas com expiração, cancelamento de venda/distrato e renegociação de parcelas com histórico.
 5. Definir juros, descontos, multa e correção antes de automatizar esses cálculos.
 6. Relatórios completos em Excel (.xlsx) e PDF. CSV e impressão de recibos já estão disponíveis; não equivalem a essa entrega completa.
-7. Central financeira com filtros por categoria, conta, cliente e segmento; resultado de caixa por imóvel, contas a pagar no dashboard e separação de terrenos/casas.
+7. Relatórios gerenciais adicionais e rateio de despesas administrativas por imóvel. Filtros do extrato, resultado de caixa por imóvel, contas a pagar no dashboard e separação de terrenos/casas já estão implementados.
 8. Notificações agendadas em segundo plano. A central atual calcula avisos ao consultar e não envia mensagens externas.
 9. Gestão de usuários pela interface sem depender do painel Supabase para criar/recuperar contas.
 10. Validar política operacional de backup/restauração, retenção de dados/anexos, implantação, SMTP e configuração de URLs de autenticação. A configuração do backup hospedado ainda não foi verificada.
@@ -61,6 +65,7 @@ Estoque, WhatsApp automático, integração bancária, integração técnica com
 
 - `npm run build`: TypeScript e build de produção.
 - `npm test`: conversão monetária e situação de parcelas, incluindo pagamento parcial em atraso.
+- `src/lib/financial.test.ts`: consolidação por cliente/imóvel, múltiplas vendas, obrigações parciais, estornos, categorias, filtros combinados, intervalos de data, seleção vazia e CSV com proteção contra fórmulas.
 - `supabase/tests/finance_core.sql`: integração transacional; fixtures e usuário de teste são revertidos com ROLLBACK.
 - Verificação no navegador com conta descartável; nenhuma credencial de usuário real é utilizada.
 
@@ -71,3 +76,12 @@ Pendência de limpeza: a confirmação da ferramenta SQL para excluir fixtures e
 O último Advisor do Supabase apontou **Leaked Password Protection Disabled**. A proteção contra senhas vazadas deve ser ativada nas configurações de Auth quando disponível no plano: https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection. Não restaram alertas de RLS ou de funções públicas privilegiadas nesta verificação.
 
 O projeto não está publicado. A aplicação está configurada para desenvolvimento contra o Supabase remoto. Mudanças de schema devem ser versionadas e revisadas antes de aplicação; nunca usar reset/push destrutivo nesse projeto.
+
+## Segunda entrega: fichas e consultas financeiras
+
+- Build de produção e 17 testes unitários aprovados.
+- Fichas, seleção por URL, filtros combinados, seleção vazia, persistência dos filtros após atualização e download do CSV verificados em navegador.
+- Layouts de fichas e extrato conferidos em desktop e 375 px, sem rolagem horizontal da página; tabelas mantêm sua rolagem interna.
+- Navegação da nova ficha restrita a administrador/financeiro; perfil Vendas redirecionado ao dashboard sem solicitar dados financeiros.
+- Esta verificação de interface utilizou respostas de API simuladas, isoladas no navegador. Não foram criados usuários ou registros no Supabase, nem alterados schema, RLS ou regras de pagamento. As regras de escrita do banco não foram retestadas nesta entrega, pois permaneceram inalteradas.
+- Exportação disponível em CSV, incluindo resumo, contratos, parcelas, custos e histórico da ficha. Excel nativo e relatórios PDF completos continuam pendentes.
