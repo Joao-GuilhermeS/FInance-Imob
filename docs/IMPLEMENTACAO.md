@@ -21,6 +21,9 @@ Aplicação React/TypeScript responsiva, com autenticação por e-mail/senha e b
 - Na ficha do imóvel: aquisição e custos incorridos, obrigações em aberto, resultado previsto da venda e resultado de caixa registrado, sem duplicar custos nem misturar saldo inicial.
 - Extrato com filtros combináveis de período, conta, pessoa, imóvel, segmento, categoria, operação e busca; totais e CSV refletem a seleção. A atualização dos dados preserva os filtros da tela.
 - Contas a pagar no dashboard, com total pendente e saldo em atraso; no financeiro, vencimentos ordenados e pagamento parcial identificado.
+- Cadastros ampliados de pessoas: RG, nascimento, estado civil, profissão/atividade, telefone e WhatsApp separados, endereço e observações; edição por administrador, financeiro e vendas.
+- Cadastros ampliados de imóveis: loteamento, quadra, lote, metragem, aquisição, identificação e responsável da obra, início, previsão e conclusão efetiva; atualização respeita o perfil e mantém os vínculos financeiros.
+- Formulários organizados por seções, validação de formato e datas, mensagens junto aos campos e resumo de erros com foco de teclado.
 
 ## Regras financeiras
 
@@ -42,16 +45,16 @@ Aplicação React/TypeScript responsiva, com autenticação por e-mail/senha e b
 | Administrador | Toda a operação e auditoria | Todos os cadastros e RPCs; atribuição de perfis |
 | Financeiro | Pessoas, imóveis, vendas, parcelas, contas e despesas | Pessoas, contas, despesas, pagamentos, recebimentos e estornos |
 | Vendas | Pessoas, imóveis e vendas | Pessoas, imóveis e novas vendas; contratos |
-| Obras | Pessoas, imóveis e despesas | Novos fornecedores/prestadores, atualização dos imóveis e despesas vinculadas a obras |
+| Obras | Fornecedores/prestadores, imóveis e despesas | Novos fornecedores/prestadores, atualização dos dados de construção e despesas vinculadas a obras; não acessa cadastros de clientes nem altera preços de venda |
 
 As permissões são verificadas por RLS, privilégios de coluna e funções autorizadas. Esconder um botão não é a barreira de acesso. Nenhuma chave privilegiada fica no navegador.
 
 ## Próximos incrementos para fechar o MVP aprovado
 
-1. Completar fichas cadastrais (RG, nascimento, estado civil, profissão, lote/quadra/metragem, responsáveis e datas da obra) e edição de pessoas.
+1. Reservas com expiração, cancelamento de venda/distrato e renegociação de parcelas com histórico — próximo incremento. Os cadastros ampliados e sua edição já estão implementados.
 2. Histórico de alterações cadastrais/auditoria consultável e recibo individual por pagamento. As fichas financeiras consolidadas e o histórico de movimentações já estão disponíveis.
 3. Compra com múltiplos itens e preço unitário, categorias configuráveis, rateio e pagamentos da aquisição sem duplicação de custo.
-4. Reservas com expiração, cancelamento de venda/distrato e renegociação de parcelas com histórico.
+4. Definir as regras operacionais de devolução, multa de distrato e renegociação antes de automatizar esses valores.
 5. Definir juros, descontos, multa e correção antes de automatizar esses cálculos.
 6. Relatórios completos em Excel (.xlsx) e PDF. CSV e impressão de recibos já estão disponíveis; não equivalem a essa entrega completa.
 7. Relatórios gerenciais adicionais e rateio de despesas administrativas por imóvel. Filtros do extrato, resultado de caixa por imóvel, contas a pagar no dashboard e separação de terrenos/casas já estão implementados.
@@ -85,3 +88,16 @@ O projeto não está publicado. A aplicação está configurada para desenvolvim
 - Navegação da nova ficha restrita a administrador/financeiro; perfil Vendas redirecionado ao dashboard sem solicitar dados financeiros.
 - Esta verificação de interface utilizou respostas de API simuladas, isoladas no navegador. Não foram criados usuários ou registros no Supabase, nem alterados schema, RLS ou regras de pagamento. As regras de escrita do banco não foram retestadas nesta entrega, pois permaneceram inalteradas.
 - Exportação disponível em CSV, incluindo resumo, contratos, parcelas, custos e histórico da ficha. Excel nativo e relatórios PDF completos continuam pendentes.
+
+## Terceira entrega: cadastros completos e edição — 17/11/2026
+
+- Campos adicionais opcionais preservam a compatibilidade com registros existentes.
+- Pessoas: os dados podem ser preenchidos e corrigidos na mesma ficha, com CPF/CNPJ normalizado e formato conferido (sem consulta externa nem cálculo de dígito verificador). O tipo de cliente não pode mudar quando há venda vinculada.
+- Imóveis: código, tipo e custo de aquisição são mantidos na edição; preço pedido não altera o valor de venda contratada. Correções de aquisição continuam reservadas ao futuro fluxo financeiro.
+- Obras atualiza identificação, responsável, datas, etapa, orçamento e observações da construção. O banco bloqueia mudanças de preço pelo perfil Obras.
+- Duas migrações aditivas aplicadas ao `IMOB-Project`, com versões locais sincronizadas com o histórico remoto. Não há exclusão de dados nem alteração de parcelas ou lançamentos existentes.
+- Build de produção e 25 testes unitários aprovados. `supabase/tests/registry.sql` valida os novos dados, permissões, auditoria e manutenção dos vínculos/saldos; `supabase/tests/finance_core.sql` foi reexecutado e aprovado. Ambos revertem suas fixtures com ROLLBACK.
+- Interface verificada com API simulada no navegador; as alterações simuladas não são gravadas no Supabase. A verificação do banco foi feita separadamente por testes transacionais reais.
+- No navegador: documento inválido manteve os dados preenchidos e focou o resumo de erros; edição de pessoa e de imóvel reaberta com os novos valores; campos protegidos ausentes do PATCH de imóvel; formulários conferidos em desktop e 375 px, sem transbordamento horizontal do diálogo ou da página.
+- A consulta ao Advisor manteve apenas o aviso já conhecido de proteção contra senhas vazadas desativada; não foram apontados avisos de RLS ou funções públicas privilegiadas.
+- Versionamento da etapa em branch `codex/feat-cadastros-completos`, com classificação `feat`. Fluxo contínuo de branches, testes, PRs e merges registrado em `docs/GIT_WORKFLOW.md`; acesso remoto ainda pendente de autenticação/autorização no GitHub privado.

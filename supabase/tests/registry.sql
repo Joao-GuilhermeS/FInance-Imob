@@ -1,0 +1,91 @@
+-- Transactional verification: no persistent fixtures or changes to existing records.
+begin;
+insert into auth.users(id,email,email_confirmed_at) values('10000000-0000-4000-8000-000000000002','registry-test@example.invalid',now());
+insert into public.profiles(id,name,role) values('10000000-0000-4000-8000-000000000002','Registry verification','admin');
+select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000002',true);
+set local role authenticated;
+do $$
+declare c uuid; p uuid; s uuid; blocked boolean; ledger_before bigint;
+begin
+insert into public.contacts(name,kind,document,rg,birth_date,marital_status,profession,whatsapp,email,address,notes)
+values('Registry client','client','123.456.789-01','RG-1','1990-01-01','single','Engineer','11999990000','TEST@EXAMPLE.INVALID','Street 1','Original note') returning id into c;
+assert (select document from public.contacts where id=c)='12345678901','Document not normalized';
+assert (select email from public.contacts where id=c)='test@example.invalid','Email not normalized';
+insert into public.properties(code,name,kind,acquisition_cents,development,block,lot,area_sqm,acquisition_on,construction_reference,responsible,started_on,expected_completion_on)
+values('REGISTRY-ROLLBACK','Registry house','house',10000,'Development','A','12',125.50,'2026-01-01','WORK-1','Maria','2026-02-01','2026-12-01') returning id into p;
+s:=public.create_sale(gen_random_uuid(),c,p,20000,0,2,'2026-10-01','2026-11-01');
+select count(*) into ledger_before from public.ledger;
+update public.contacts set name='Updated registry client',rg='RG-2',profession='Architect',notes='Updated note' where id=c;
+update public.properties set asking_cents=99999,area_sqm=130.25,lot='13',responsible='Joana' where id=p;
+assert (select contact_id from public.sales where id=s)=c,'Contact relationship changed';
+assert (select property_id from public.sales where id=s)=p,'Property relationship changed';
+assert (select total_cents from public.sales where id=s)=20000,'Registry edit changed contract value';
+assert (select count(*) from public.ledger)=ledger_before,'Registry edit changed cash ledger';
+assert (select client_name from public.installment_balances where sale_id=s limit 1)='Updated registry client','Financial sheet not updated with contact name';
+blocked:=false;
+begin update public.contacts set kind='supplier' where id=c;
+exception when check_violation then blocked:=true; end;
+assert blocked,'Sold customer was reclassified';
+blocked:=false;
+begin update public.contacts set document='123' where id=c;
+exception when check_violation then blocked:=true; end;
+assert blocked,'Invalid document accepted';
+blocked:=false;
+begin update public.contacts set birth_date='2099-01-01' where id=c;
+exception when check_violation then blocked:=true; end;
+assert blocked,'Future birth date accepted';
+blocked:=false;
+begin update public.properties set area_sqm=0 where id=p;
+exception when check_violation then blocked:=true; end;
+assert blocked,'Zero area accepted';
+blocked:=false;
+begin update public.properties set expected_completion_on='2026-01-01' where id=p;
+exception when check_violation then blocked:=true; end;
+assert blocked,'Invalid construction dates accepted';
+blocked:=false;
+begin update public.properties set completed_on='2099-01-01' where id=p;
+exception when check_violation then blocked:=true; end;
+assert blocked,'Future actual completion accepted';
+blocked:=false;
+begin update public.contacts set email='invalid-email' where id=c;
+exception when check_violation then blocked:=true; end;
+assert blocked,'Invalid email accepted';
+blocked:=false;
+begin update public.properties set acquisition_cents=999 where id=p;
+exception when insufficient_privilege then blocked:=true; end;
+assert blocked,'Acquisition cost is directly editable';
+end $$;
+reset role;
+do $$ begin
+assert exists(select 1 from public.audit_log where actor_id='10000000-0000-4000-8000-000000000002' and entity='contacts' and operation='UPDATE' and before_data->>'rg'='RG-1' and after_data->>'rg'='RG-2'),'Contact edit audit missing';
+assert exists(select 1 from public.audit_log where actor_id='10000000-0000-4000-8000-000000000002' and entity='properties' and operation='UPDATE' and after_data->>'lot'='13'),'Property edit audit missing';
+end $$;
+update public.profiles set role='works' where id='10000000-0000-4000-8000-000000000002';
+set local role authenticated;
+do $$ declare p uuid; blocked boolean:=false; begin
+assert not exists(select 1 from public.contacts where document='12345678901'),'Works can read customer personal records';
+insert into public.contacts(name,kind,document) values('Registry provider','provider','12.ABC.345/01DE-35');
+assert exists(select 1 from public.contacts where document='12ABC34501DE35'),'Works cannot create/read providers';
+begin insert into public.contacts(name,kind) values('Forbidden customer','client');
+exception when insufficient_privilege then blocked:=true; end;
+assert blocked,'Works can create customer';
+select id into p from public.properties where code='REGISTRY-ROLLBACK';
+update public.properties set responsible='Works responsible',construction_status='finishing',budget_cents=50000,notes='Works update' where id=p;
+assert (select responsible from public.properties where id=p)='Works responsible','Works cannot edit construction';
+blocked:=false;
+begin update public.properties set asking_cents=1 where id=p;
+exception when insufficient_privilege then blocked:=true; end;
+assert blocked,'Works can change asking price';
+end $$;
+reset role;
+update public.profiles set role='finance' where id='10000000-0000-4000-8000-000000000002';
+set local role authenticated;
+do $$ declare blocked boolean:=false; begin
+update public.contacts set profession='Finance edit' where document='12345678901';
+assert exists(select 1 from public.contacts where profession='Finance edit'),'Finance cannot edit contact';
+update public.properties set lot='FORBIDDEN' where code='REGISTRY-ROLLBACK';
+assert not exists(select 1 from public.properties where code='REGISTRY-ROLLBACK' and lot='FORBIDDEN'),'Finance edited property';
+end $$;
+reset role;
+rollback;
+select 'PASS: complete registries, validation, references, unchanged contract/cash, audit and profile permissions' as verification;
