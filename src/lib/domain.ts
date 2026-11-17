@@ -15,8 +15,8 @@ export function installmentState(amount: number, received: number, due: string, 
   return due === reference ? { label: 'Vence hoje', tone: 'warning' } : { label: 'A vencer', tone: 'neutral' }
 }
 export type Role = 'admin' | 'finance' | 'sales' | 'works'
-export type Contact = { id: string; name: string; document: string; phone: string; email: string; address: string; kind: string }
-export type Property = { id: string; code: string; name: string; kind: string; address: string; acquisition_cents: number; asking_cents: number; commercial_status: string; construction_status: string; budget_cents: number }
+export type Contact = { id: string; name: string; document: string; phone: string; email: string; address: string; kind: string; rg?: string; birth_date?: string | null; marital_status?: string; profession?: string; whatsapp?: string; notes?: string }
+export type Property = { id: string; code: string; name: string; kind: string; address: string; acquisition_cents: number; asking_cents: number; commercial_status: string; construction_status: string; budget_cents: number; development?: string; block?: string; lot?: string; area_sqm?: number | null; acquisition_on?: string | null; construction_reference?: string; responsible?: string; started_on?: string | null; expected_completion_on?: string | null; completed_on?: string | null; notes?: string }
 export type Sale = { id: string; contact_id: string; property_id: string; total_cents: number; sold_on: string; contacts: { name: string }; properties: { name: string; code: string } }
 export type Installment = { id: string; sale_id: string; number: number; amount_cents: number; due_on: string; received_cents: number; client_name: string; property_code: string }
 export type Account = { id: string; name: string; opening_cents: number }

@@ -4,6 +4,8 @@ Primeira implementação da gestão de imóveis, vendas, parcelas, caixa e custo
 
 Agora inclui fichas financeiras por cliente e imóvel, filtros combinados no extrato, exportação da seleção em CSV e contas a pagar no dashboard. As fichas ficam no menu **Fichas financeiras** e nos atalhos das telas **Imóveis** e **Clientes e fornecedores**, para os perfis administrador e financeiro.
 
+Os cadastros agora incluem dados pessoais, loteamento/quadra/lote/metragem e dados da construção. Use **Editar cadastro** em pessoas e **Editar imóvel** nos imóveis. O perfil Obras atualiza somente os dados de construção; o Financeiro pode consultar os imóveis e editar pessoas.
+
 ## Executar
 
 Requer Node.js 24 e npm.
