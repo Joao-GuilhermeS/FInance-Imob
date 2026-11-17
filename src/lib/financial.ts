@@ -1,8 +1,9 @@
 import type { Data, Entry, Expense } from './domain'
-import { today } from './domain'
+import { installmentOutstanding, today } from './domain'
+import { saleIsActive } from './sales-lifecycle'
 
 export const financialCategories: Record<string, string> = {
-  sale: 'Recebimento de venda', materials: 'Materiais', labor: 'Mão de obra',
+  sale: 'Recebimento de venda', materials: 'Materiais', labor: 'Mão de obra', refund: 'Devolução por distrato',
   services: 'Serviços', acquisition: 'Aquisição', other: 'Outras despesas', expense: 'Despesa',
 }
 export type LedgerFilters = {
@@ -36,6 +37,7 @@ export function entryDetails(entry: Entry, index: ReturnType<typeof financialInd
     property: propertyId ? index.properties.get(propertyId) : undefined,
     account: index.accounts.get(entry.account_id),
     reversed: index.reversedIds.has(entry.id),
+    canReverse: !installment || (installment.status !== 'renegotiated' && installment.status !== 'cancelled' && (!sale || saleIsActive(sale))),
   }
 }
 export function filterLedger(data: Data, filters: LedgerFilters) {
@@ -75,17 +77,23 @@ export function financialRecord(data: Data, kind: 'client' | 'property', id: str
   const installments = data.installments.filter(item => saleIds.has(item.sale_id))
     .sort((a, b) => a.due_on.localeCompare(b.due_on) || a.number - b.number)
   const installmentIds = new Set(installments.map(item => item.id))
-  const ledger = data.ledger.filter(entry => kind === 'property' ? entry.property_id === id : entry.installment_id !== null && installmentIds.has(entry.installment_id))
+  const refunds = data.expenses.filter(expense => expense.refund_sale_id && saleIds.has(expense.refund_sale_id))
+  const refundIds = new Set(refunds.map(expense => expense.id))
+  const ledger = data.ledger.filter(entry => kind === 'property' ? entry.property_id === id : entry.installment_id !== null && installmentIds.has(entry.installment_id) || entry.expense_id !== null && refundIds.has(entry.expense_id))
     .sort((a, b) => b.occurred_on.localeCompare(a.occurred_on) || b.id.localeCompare(a.id))
   const expenses = kind === 'property' ? data.expenses.filter(expense => expense.property_id === id) : []
   const property = kind === 'property' ? data.properties.find(item => item.id === id) : undefined
-  const contracted = sales.reduce((sum, sale) => sum + sale.total_cents, 0)
-  const received = installments.reduce((sum, item) => sum + item.received_cents, 0)
-  const outstanding = installments.reduce((sum, item) => sum + Math.max(item.amount_cents - item.received_cents, 0), 0)
-  const overdue = installments.filter(item => item.due_on < reference).reduce((sum, item) => sum + Math.max(item.amount_cents - item.received_cents, 0), 0)
-  const cost = (property?.acquisition_cents || 0) + expenses.reduce((sum, expense) => sum + expense.amount_cents, 0)
+  const activeSales = sales.filter(saleIsActive)
+  const contracted = activeSales.reduce((sum, sale) => sum + sale.total_cents, 0)
+  const cancelledTotal = sales.filter(sale => !saleIsActive(sale)).reduce((sum, sale) => sum + sale.total_cents, 0)
+  const receivedGross = installments.reduce((sum, item) => sum + item.received_cents, 0)
+  const refunded = refunds.reduce((sum, expense) => sum + expense.paid_cents, 0)
+  const received = receivedGross - refunded
+  const outstanding = installments.reduce((sum, item) => sum + installmentOutstanding(item), 0)
+  const overdue = installments.filter(item => item.due_on < reference).reduce((sum, item) => sum + installmentOutstanding(item), 0)
+  const cost = (property?.acquisition_cents || 0) + expenses.filter(expense => expense.category !== 'refund').reduce((sum, expense) => sum + expense.amount_cents, 0)
   return { sales, installments, ledger, expenses, property, contracted, received, outstanding, overdue, cost,
-    forecast: sales.length ? contracted - cost : null,
+    forecast: activeSales.length ? contracted - cost : null, receivedGross, refunded, cancelledTotal, refundPending: payableTotals(refunds, reference).pending,
     cash: ledgerTotals(ledger).result, payable: payableTotals(expenses, reference) }
 }
 export function csv(rows: (string | number)[][]) {

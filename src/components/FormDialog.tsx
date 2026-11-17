@@ -3,7 +3,7 @@ import type { FormEvent, ReactNode } from 'react'
 import { X } from 'lucide-react'
 import { FieldErrors } from '../lib/form-errors'
 export type Field = { name: string; label: string; type?: string; value?: string; required?: boolean; min?: string; max?: string; step?: string; options?: { value: string; label: string }[]; hint?: string; section?: string; readOnly?: boolean; maxLength?: number }
-export function FormDialog({ title, fields, onClose, onSave, children, submitLabel = 'Salvar' }: { title: string; fields: Field[]; onClose: () => void; onSave: (values: Record<string, string>) => Promise<void>; children?: ReactNode; submitLabel?: string }) {
+export function FormDialog({ title, fields, onClose, onSave, children, submitLabel = 'Salvar', preview }: { title: string; fields: Field[]; onClose: () => void; onSave: (values: Record<string, string>) => Promise<void>; children?: ReactNode; submitLabel?: string; preview?: (values: Record<string, string>) => ReactNode }) {
   const dialog = useRef<HTMLDialogElement>(null)
   const requestId = useRef(crypto.randomUUID())
   const [busy, setBusy] = useState(false)
@@ -11,6 +11,7 @@ export function FormDialog({ title, fields, onClose, onSave, children, submitLab
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const errorRef = useRef<HTMLDivElement>(null)
   const prefix = useId()
+  const [values, setValues] = useState<Record<string, string>>(() => Object.fromEntries(fields.map(field => [field.name, field.value || ''])))
   const groups = new Map<string, Field[]>()
   for (const field of fields) groups.set(field.section || '', [...(groups.get(field.section || '') || []), field])
   useEffect(() => { const node = dialog.current!; node.showModal(); return () => node.close() }, [])
@@ -29,7 +30,7 @@ export function FormDialog({ title, fields, onClose, onSave, children, submitLab
   }
   return <dialog ref={dialog} onCancel={event => { event.preventDefault(); if (!busy) onClose() }} aria-labelledby="dialog-title">
     <div className="dialog-heading"><div><p className="eyebrow">FINANCE IMOB</p><h2 id="dialog-title">{title}</h2></div><button className="icon-button" type="button" onClick={onClose} disabled={busy} aria-label="Fechar"><X size={20} /></button></div>
-    <form onSubmit={submit}>
+    <form onSubmit={submit} onChange={preview ? event => setValues(Object.fromEntries(new FormData(event.currentTarget)) as Record<string, string>) : undefined}>
       {error ? <div ref={errorRef} tabIndex={-1} role="alert" className="notice error"><strong>{error}</strong>{Object.entries(fieldErrors).map(([name, message]) => <a className="field-error-link" key={name} href={`#${prefix}-${name}`} onClick={event => { event.preventDefault(); document.getElementById(`${prefix}-${name}`)?.focus() }}>{fields.find(field => field.name === name)?.label || name}: {message}</a>)}</div> : null}
       {[...groups].map(([section, group]) => <fieldset key={section} className="form-fieldset" disabled={busy}>{section ? <legend>{section}</legend> : null}<div className="form-grid">{group.map(field => {
         const shared = { id: `${prefix}-${field.name}`, name: field.name, defaultValue: field.value || '', required: field.required !== false, 'aria-invalid': Boolean(fieldErrors[field.name]), 'aria-describedby': [field.hint ? `${prefix}-${field.name}-hint` : '', fieldErrors[field.name] ? `${prefix}-${field.name}-error` : ''].filter(Boolean).join(' ') || undefined }
@@ -37,7 +38,7 @@ export function FormDialog({ title, fields, onClose, onSave, children, submitLab
           : field.type === 'textarea' ? <textarea {...shared} readOnly={field.readOnly} maxLength={field.maxLength || 2000} />
             : <input {...shared} type={field.type || 'text'} readOnly={field.readOnly} min={field.min} max={field.max} step={field.step} maxLength={field.maxLength || (field.type === 'text' || !field.type ? 160 : undefined)} />}
           {field.hint ? <small id={`${prefix}-${field.name}-hint`}>{field.hint}</small> : null}{fieldErrors[field.name] ? <small className="field-error" id={`${prefix}-${field.name}-error`}>{fieldErrors[field.name]}</small> : null}</label>
-      })}</div></fieldset>)}{children}
+      })}</div></fieldset>)}{preview?.(values)}{children}
       <div className="dialog-actions"><button className="secondary" type="button" disabled={busy} onClick={onClose}>Cancelar</button><button disabled={busy}>{busy ? 'Processando…' : submitLabel}</button></div>
     </form>
   </dialog>

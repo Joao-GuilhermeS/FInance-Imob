@@ -51,10 +51,10 @@ As permissões são verificadas por RLS, privilégios de coluna e funções auto
 
 ## Próximos incrementos para fechar o MVP aprovado
 
-1. Reservas com expiração, cancelamento de venda/distrato e renegociação de parcelas com histórico — próximo incremento. Os cadastros ampliados e sua edição já estão implementados.
+1. Revisão operacional dos acordos já registrados, incluindo correção excepcional de recebimentos protegidos por renegociação/distrato. Reservas, distrato e renegociação estão implementados.
 2. Histórico de alterações cadastrais/auditoria consultável e recibo individual por pagamento. As fichas financeiras consolidadas e o histórico de movimentações já estão disponíveis.
 3. Compra com múltiplos itens e preço unitário, categorias configuráveis, rateio e pagamentos da aquisição sem duplicação de custo.
-4. Definir as regras operacionais de devolução, multa de distrato e renegociação antes de automatizar esses valores.
+4. Multas, juros e descontos automáticos dependem de regras futuras. Nesta entrega, o saldo é preservado na renegociação e a devolução é explicitamente acordada.
 5. Definir juros, descontos, multa e correção antes de automatizar esses cálculos.
 6. Relatórios completos em Excel (.xlsx) e PDF. CSV e impressão de recibos já estão disponíveis; não equivalem a essa entrega completa.
 7. Relatórios gerenciais adicionais e rateio de despesas administrativas por imóvel. Filtros do extrato, resultado de caixa por imóvel, contas a pagar no dashboard e separação de terrenos/casas já estão implementados.
@@ -100,4 +100,18 @@ O projeto não está publicado. A aplicação está configurada para desenvolvim
 - Interface verificada com API simulada no navegador; as alterações simuladas não são gravadas no Supabase. A verificação do banco foi feita separadamente por testes transacionais reais.
 - No navegador: documento inválido manteve os dados preenchidos e focou o resumo de erros; edição de pessoa e de imóvel reaberta com os novos valores; campos protegidos ausentes do PATCH de imóvel; formulários conferidos em desktop e 375 px, sem transbordamento horizontal do diálogo ou da página.
 - A consulta ao Advisor manteve apenas o aviso já conhecido de proteção contra senhas vazadas desativada; não foram apontados avisos de RLS ou funções públicas privilegiadas.
-- Versionamento da etapa em branch `codex/feat-cadastros-completos`, com classificação `feat`. Fluxo contínuo de branches, testes, PRs e merges registrado em `docs/GIT_WORKFLOW.md`; acesso remoto ainda pendente de autenticação/autorização no GitHub privado.
+- Versionamento da etapa em branch `codex/feat-cadastros-completos`, com classificação `feat`. Fluxo contínuo de branches, testes, PRs e merges registrado em `docs/GIT_WORKFLOW.md`; acesso remoto posteriormente corrigido e entrega integrada à main pelo PR #1.
+
+
+## Quarta entrega: ciclo comercial — 17/11/2026
+
+- Reservas com validade inclusiva no horário de São Paulo, liberação justificada e conversão em venda para o cliente reservado. Disponibilidade efetiva calculada no banco, sem depender de tarefa agendada.
+- Renegociação conserva todo o saldo em aberto, sem juros/descontos automáticos. Centavos são ajustados na última parcela e os vencimentos preservam a referência mensal. Parcelas substituídas e recebimentos permanecem no histórico.
+- Distrato exige devolução acordada entre zero e o recebido líquido; encerra a cobrança e permite revenda sem excluir a venda anterior. Devolução positiva gera conta a pagar vinculada ao cliente e imóvel. O caixa muda apenas no pagamento dessa obrigação.
+- Acordos possuem motivo, data, autor e dados financeiros auditáveis. Solicitações repetidas são idempotentes; alterações de saldo entre abertura e envio do formulário são rejeitadas pelo banco.
+- Recebimentos de parcelas substituídas ou vendas canceladas ficam protegidos contra estorno, para não invalidar o acordo. Revisão desses acordos ainda não tem fluxo próprio. Pagamentos de devoluções podem ser estornados normalmente.
+- Fichas, CSV, alertas, parcelas e totais consideram somente cobrança ativa; recebimentos e devoluções continuam no histórico. Devoluções não são custo de construção.
+- Migração aplicada ao IMOB-Project e versão local sincronizada. Três scripts SQL transacionais aprovados: finance_core, registry e sales_lifecycle; todas as novas fixtures revertidas por ROLLBACK.
+- Build aprovado; 30 testes unitários. Lint sem erros, com quatro avisos preexistentes em App/Documents.
+- Navegador com API simulada: prévia de renegociação, valores enviados aos RPCs de renegociação/distrato e diálogo de distrato em 375 px sem transbordamento horizontal. A verificação do banco foi separada e real; a simulação não altera dados remotos.
+- Advisor mantém apenas o aviso já documentado de proteção contra senhas vazadas desativada. Publicação da aplicação permanece pendente.
