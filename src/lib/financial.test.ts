@@ -42,6 +42,22 @@ function fixture(): Data {
 const filters = { from: '', to: '', account: '', contact: '', property: '', segment: '', category: '', operation: '', search: '' }
 
 describe('fichas financeiras', () => {
+  it('preserva recebimentos no distrato e desconta devoluções sem transformá-las em custo', () => {
+    const data = fixture()
+    data.sales[0].status = 'cancelled'
+    for (const item of data.installments.filter(item => item.sale_id === 'sale-house')) item.sale_status = 'cancelled'
+    data.expenses.push({ ...data.expenses[0], id: 'refund', category: 'refund', contact_id: 'buyer', refund_sale_id: 'sale-house', amount_cents: 8000, paid_cents: 6000 })
+    data.ledger.push({ ...data.ledger[3], id: 'refund-payment', expense_id: 'refund', amount_cents: -6000 })
+    const record = financialRecord(data, 'client', 'buyer')
+    expect(record.contracted).toBe(0)
+    expect(record.outstanding).toBe(0)
+    expect(record.cancelledTotal).toBe(100000)
+    expect(record.received).toBe(4000)
+    expect(record.refundPending).toBe(2000)
+    expect(record.ledger.some(item => item.id === 'refund-payment')).toBe(true)
+    expect(financialRecord(data, 'property', 'house').cost).toBe(60000)
+    expect(entryDetails(data.ledger[0], financialIndex(data)).canReverse).toBe(false)
+  })
   it('isola o cliente e mantém pagamentos parciais/estornos no saldo devedor', () => {
     const record = financialRecord(fixture(), 'client', 'buyer', '2026-11-14')
     expect(record.sales.map(item => item.id)).toEqual(['sale-house'])

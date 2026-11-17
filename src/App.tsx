@@ -14,6 +14,7 @@ const navigation = [
   { path: '/imoveis', label: 'Imóveis', icon: Building2, roles: ['admin','finance','sales','works'] },
   { path: '/pessoas', label: 'Clientes e fornecedores', icon: Users, roles: ['admin','finance','sales','works'] },
   { path: '/vendas', label: 'Vendas e contratos', icon: ClipboardList, roles: ['admin','finance','sales'] },
+  { path: '/reservas', label: 'Reservas', icon: Building2, roles: ['admin','finance','sales'] },
   { path: '/parcelas', label: 'Parcelas e recebimentos', icon: ArrowDownLeft, roles: ['admin','finance'] },
   { path: '/financeiro', label: 'Financeiro', icon: Wallet, roles: ['admin','finance'] },
   { path: '/fichas', label: 'Fichas financeiras', icon: ClipboardList, roles: ['admin','finance'] },

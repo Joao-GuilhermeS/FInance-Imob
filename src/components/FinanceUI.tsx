@@ -18,7 +18,7 @@ export function LedgerTable({ entries, data, onReverse }: { entries: Entry[]; da
       return <tr key={entry.id}><td>{dateLabel(entry.occurred_on)}</td><td><strong>{entry.description}</strong><small>{financialCategories[detail.category] || detail.category} · {entry.method}</small></td>
         <td>{detail.contact?.name || 'Sem vínculo com pessoa'}<small>{detail.property ? `${detail.property.code} · ${detail.property.name}` : 'Despesas gerais da empresa'}</small></td>
         <td>{detail.account?.name || 'Conta não localizada'}</td><td className={entry.amount_cents > 0 ? 'positive' : 'negative'}>{money(entry.amount_cents)}</td>
-        <td>{entry.reversal_of ? <span className="badge warning">Estorno</span> : detail.reversed ? <span className="badge neutral">Lançamento estornado</span> : onReverse ? <button className="small secondary" onClick={() => onReverse(entry)}>Estornar</button> : <span className="badge success">Confirmado</span>}</td>
+        <td>{entry.reversal_of ? <span className="badge warning">Estorno</span> : detail.reversed ? <span className="badge neutral">Lançamento estornado</span> : onReverse && detail.canReverse ? <button className="small secondary" onClick={() => onReverse(entry)}>Estornar</button> : <span className="badge success">{detail.canReverse ? 'Confirmado' : 'Vinculado a acordo'}</span>}</td>
       </tr>
     })}
   </FinanceTable>

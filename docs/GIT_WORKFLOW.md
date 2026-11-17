@@ -22,4 +22,6 @@ Autorização do responsável em 17/11/2026: versionar no GitHub quando necessá
 
 Branch: `codex/feat-cadastros-completos`. Classificação: `feat`.
 
-O acesso remoto foi tentado, mas a integração GitHub retornou 404 e o Git local não encontrou credenciais. A entrega pode ser commitada localmente; publicação e merge dependem da liberação do acesso ao repositório privado.
+A autenticação local foi corrigida para Joao-GuilhermeS. A entrega foi publicada e integrada à main pelo PR #1. A integração não autoriza merge pela API; quando necessário, o merge é feito pelo Git local e enviado sem force push.
+
+Entrega seguinte: codex/feat-ciclo-de-vendas, classificação feat. Repositório público Joao-GuilhermeS/FInance-Imob.

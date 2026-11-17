@@ -1,0 +1,6 @@
+.commercial-history { display: grid; gap: 1rem; }
+.commercial-history article { padding: 1rem; border: 1px solid var(--border, #dfe5e1); border-radius: 12px; overflow-wrap: anywhere; }
+.commercial-history small { display: block; margin-top: .5rem; }
+.agreement-preview { padding: 1rem; border-radius: 12px; background: #edf5ef; color: #214b37; grid-column: 1 / -1; overflow-wrap: anywhere; }
+.agreement-preview p { margin-bottom: 0; }
+.commercial-actions { display: flex; flex-wrap: wrap; gap: .4rem; }
