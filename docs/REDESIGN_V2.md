@@ -52,3 +52,22 @@ duplicar obrigação de aquisição nem somar devoluções como custo de constru
 - Build/lint aprovados e 43 testes unitários. Navegador: navegação entre módulos,
   isolamento de casas/fornecedores, Escape/foco e ausência de overflow da página
   em 375, 768 e 1440 px. Tabelas mantêm rolagem interna.
+
+## Etapa 3
+
+- Dashboard executivo com Hoje/Semana/Mês/Ano até hoje, intervalo personalizado
+  na URL, comparação anterior de igual duração e ausência de percentuais inventados
+  quando a base anterior é zero. Datas inválidas não mostram totais antigos.
+- Posição do caixa até a data final; entradas/saídas/resultado do intervalo.
+  Carteiras atuais preservam todas as obrigações e destacam vencimentos do período,
+  para não ocultar dívidas antigas/futuras ao filtrar um mês. Disponibilidade e custos
+  acumulados são posições atuais, identificadas como tal. Não são snapshots históricos.
+- Visões consolidada, terrenos, casas e empresa reconciliáveis. Saldos iniciais
+  legados sem classificação/data permanecem na base geral, sem rateio presumido.
+- Gráfico SVG redimensionável com foco/seleção e tabela acessível; rosca com legenda
+  interativa. Sem dados, estados vazios reais. Saídas incluem estornos de recebimentos
+  explicitamente classificados, sem tratá-los como novo custo de construção.
+- Resumos setoriais, custo/lucro bruto por casa, movimentações e cobranças com ação
+  de recebimento. Métricas financeiras não são exibidas a perfis sem essa permissão.
+- 51 testes unitários; build/lint aprovados. Navegador com API simulada em Light/Dark,
+  375/768/1440 px: períodos, segmentação, intervalo inválido e ausência de overflow.

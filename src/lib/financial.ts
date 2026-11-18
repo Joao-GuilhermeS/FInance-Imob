@@ -33,6 +33,7 @@ export function entryDetails(entry: Entry, index: ReturnType<typeof financialInd
   const category = expense?.category || (installment ? 'sale' : entry.category)
   return {
     installment, expense, contactId, propertyId, category,
+    segment: (propertyId ? index.properties.get(propertyId)?.kind : null) || (index.accounts.get(entry.account_id)?.segment === 'general' ? 'company' : index.accounts.get(entry.account_id)?.segment) || 'company',
     contact: contactId ? index.contacts.get(contactId) : undefined,
     property: propertyId ? index.properties.get(propertyId) : undefined,
     account: index.accounts.get(entry.account_id),
@@ -50,8 +51,7 @@ export function filterLedger(data: Data, filters: LedgerFilters) {
     if (filters.contact && detail.contactId !== filters.contact) return false
     if (filters.property && detail.propertyId !== filters.property) return false
     if (filters.category && detail.category !== filters.category) return false
-    if (filters.segment === 'company' && detail.propertyId !== null) return false
-    if (filters.segment && filters.segment !== 'company' && detail.property?.kind !== filters.segment) return false
+    if (filters.segment && detail.segment !== filters.segment) return false
     if (filters.operation === 'in' && entry.amount_cents <= 0 || filters.operation === 'out' && entry.amount_cents >= 0) return false
     if (filters.operation === 'reversal' && !entry.reversal_of) return false
     return !search || [entry.description, entry.method, detail.contact?.name, detail.property?.code, detail.property?.name, detail.account?.name]
