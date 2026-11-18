@@ -3,7 +3,7 @@ import type { Session } from '@supabase/supabase-js'
 import { BrowserRouter, NavLink, Route, Routes, Navigate, useLocation } from 'react-router-dom'
 import { ArrowDownLeft, ArrowUpRight, Bell, Building2, CircleHelp, ClipboardList, HardHat, LayoutDashboard, LogOut, Menu, RefreshCw, Settings, Users, Wallet, X } from 'lucide-react'
 import { supabase } from './lib/supabase'
-import { check, loadData } from './lib/api'
+import { check, loadData, rpc } from './lib/api'
 import { emptyData, roleNames } from './lib/domain'
 import type { Data, Profile } from './lib/domain'
 import { Auth } from './components/Auth'
@@ -34,8 +34,14 @@ function Shell({ session }: { session: Session }) {
   const reload = useCallback(async () => {
     setLoading(true); setError(''); setNoAccess(false)
     try {
-      const { data: user, error: failure } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle()
-      check(failure)
+      const result = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle()
+      check(result.error)
+      let user = result.data
+      if (!user) {
+        await rpc('ensure_profile', {})
+        const provisioned = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle()
+        check(provisioned.error); user = provisioned.data
+      }
       if (!user || !user.active) { setNoAccess(true); setProfile(null); setData(emptyData); return }
       setProfile(user as Profile); setData(await loadData(user.role))
     } catch (err) { setError(err instanceof Error ? err.message : 'Falha ao carregar os dados.') }
@@ -44,7 +50,7 @@ function Shell({ session }: { session: Session }) {
   useEffect(() => { void reload() }, [reload])
   useEffect(() => { setMenu(false) }, [location.pathname])
   async function logout() { const { error: failure } = await supabase.auth.signOut({ scope: 'local' }); if (failure) setError('Não foi possível sair. Tente novamente.') }
-  if (noAccess) return <div className="access-state"><Building2 size={36} /><h1>Acesso aguardando liberação</h1><p>Seu login está válido, mas ainda não há um perfil autorizado para este usuário.</p><p>Peça ao administrador para liberar seu acesso.</p><button onClick={() => void reload()}>Verificar novamente</button><button className="secondary" onClick={() => void logout()}>Sair</button></div>
+  if (noAccess) return <div className="access-state"><Building2 size={36} /><h1>Conta indisponível</h1><p>Este acesso está desativado ou não pôde ser carregado. Verifique a conta com o responsável pelo sistema.</p><button onClick={() => void reload()}>Verificar novamente</button><button className="secondary" onClick={() => void logout()}>Sair</button></div>
   return <div className="app-shell"><aside className={menu ? 'sidebar open' : 'sidebar'}><a className="brand" href="/"><span className="brand-symbol"><Building2 size={23} /></span>finance<span className="brand-light">imob</span></a><button className="mobile-close icon-button" aria-label="Fechar menu" onClick={() => setMenu(false)}><X /></button>
     <div className="company"><span className="company-avatar">IM</span><div><strong>IMOB</strong><small>Gestão da empresa</small></div><span className="company-dot" /></div><p className="nav-label">ESPAÇO DE TRABALHO</p>
     <nav aria-label="Menu principal">{navigation.filter(item => profile && item.roles.includes(profile.role)).map(item => <NavLink end={item.path === '/'} to={item.path} key={item.path}><item.icon size={19} /><span>{item.label}</span></NavLink>)}</nav>

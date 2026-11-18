@@ -30,13 +30,13 @@ Nunca coloque `service_role`, senhas do banco ou chaves secretas em variáveis `
 O login do painel Supabase não cria automaticamente um usuário da aplicação.
 
 1. Abra [Authentication / Users do projeto](https://supabase.com/dashboard/project/jahefxamnkcuyayotqcl/auth/users).
-2. Use **Add user / Create new user** para criar `perseu.wr@gmail.com`, com senha definida por você e e-mail confirmado. Não compartilhe a senha no chat.
-3. A migração atribui automaticamente o perfil administrador a esse e-mail verificado.
+2. Use **Add user / Create new user** para criar a conta desejada, com senha definida por você e e-mail confirmado. Não compartilhe a senha no chat.
+3. O modo de contas gerenciadas cria o perfil administrador no primeiro acesso, sem aprovação por usuário, após desativar o cadastro público e ativar a configuração global descrita em `docs/ACESSO.md`.
 4. Antes de inserir dados reais, execute `docs/cleanup-qa.sql` no SQL Editor. A confirmação da ferramenta para remover os registros descartáveis expirou; a conta de teste está bloqueada, mas seus registros QA ainda existem.
 5. Entre no Finance Imob e cadastre uma conta/caixa com seu saldo inicial.
 6. Cadastre cliente e imóvel; registre uma venda; confirme os pagamentos na área de parcelas.
 
-Para outros usuários, crie o acesso confirmado no Supabase Authentication e atribua um perfil em **Configurações → Gerenciar acesso** no aplicativo. O autocadastro sem perfil não dá acesso aos dados.
+As contas são gerenciadas diretamente no Supabase Authentication. A tela de aprovação adicional foi retirada. Perfis existentes e contas desativadas são preservados; consulte `docs/ACESSO.md` antes de habilitar o provisionamento automático de novas contas.
 
 ## Comandos
 
