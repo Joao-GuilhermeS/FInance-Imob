@@ -3,6 +3,7 @@ import { ArrowRight, Download, FileSearch } from 'lucide-react'
 import type { Data } from '../lib/domain'
 import { dateLabel, installmentLabel, installmentOutstanding, money } from '../lib/domain'
 import { downloadCsv, entryDetails, financialCategories, financialIndex, financialRecord } from '../lib/financial'
+import { ReportExport } from '../components/ReportExport'
 import { FinanceMetric, FinanceTable, LedgerTable } from '../components/FinanceUI'
 
 export function FinancialRecords({ data }: { data: Data }) {
@@ -45,6 +46,7 @@ export function FinancialRecords({ data }: { data: Data }) {
   }
   return <>
     <section className="page-heading"><div><p className="eyebrow">HISTÓRICO FINANCEIRO</p><h1>Fichas financeiras</h1><p>Consulte o saldo e a história de cada cliente ou imóvel.</p></div>
+      {record && entity ? <ReportExport report={{ title: `Ficha financeira — ${entity.name}`, notes: [`Contratado: ${money(record.contracted)} · Recebido líquido: ${money(record.received)} · Saldo: ${money(record.outstanding)}`, 'Posição atual · todo o período · custos e movimentos separados para evitar dupla contagem', ...(kind === 'property' ? [`Custo acumulado: ${money(record.cost)} · Resultado bruto previsto: ${record.forecast === null ? 'Sem venda' : money(record.forecast)} · Caixa: ${money(record.cash)}`] : [])], columns: [{ label: 'Tipo' }, { label: 'Data', kind: 'date' }, { label: 'Descrição' }, { label: 'Valor', kind: 'money' }, { label: 'Recebido / pago', kind: 'money' }, { label: 'Saldo', kind: 'money' }, { label: 'Situação' }], rows: [...record.sales.map(s => ['Contrato', s.sold_on, `${s.contacts.name} · ${s.properties.code}`, s.total_cents, '', '', s.status === 'cancelled' ? 'Cancelado' : 'Ativo']), ...record.installments.map(i => ['Parcela', i.due_on, `${i.property_code} · ${i.number === 0 ? 'Entrada' : i.number}`, i.amount_cents, i.received_cents, installmentOutstanding(i), installmentLabel(i).label]), ...record.expenses.map(e => ['Obrigação', e.due_on, e.description, e.amount_cents, e.paid_cents, Math.max(e.amount_cents - e.paid_cents, 0), financialCategories[e.category] || e.category]), ...record.ledger.map(e => ['Movimentação', e.occurred_on, e.description, e.amount_cents, '', '', e.reversal_of ? 'Estorno' : 'Histórico'])] }} /> : null}
       {record ? <button className="secondary" onClick={exportRecord}><Download size={17} aria-hidden="true" />Exportar ficha CSV</button> : null}</section>
     <section className="panel record-picker" aria-label="Selecionar ficha financeira">
       <label>Consultar por<select value={kind} onChange={event => setParams({ tipo: event.target.value === 'property' ? 'imovel' : 'cliente' })}><option value="client">Cliente</option><option value="property">Imóvel</option></select></label>

@@ -4,7 +4,7 @@ import { saleIsActive } from './sales-lifecycle'
 
 export const financialCategories: Record<string, string> = {
   other_income: 'Outras receitas', sale: 'Recebimento de venda', materials: 'Materiais', labor: 'Mão de obra', refund: 'Devolução por distrato',
-  services: 'Serviços', acquisition: 'Aquisição', other: 'Outras despesas', expense: 'Despesa',
+  services: 'Serviços', acquisition: 'Aquisição', taxes: 'Impostos e cartório', commission: 'Comissões', freight: 'Fretes', equipment: 'Equipamentos', utilities: 'Água e energia', other: 'Outras despesas', expense: 'Despesa',
 }
 export type LedgerFilters = {
   from: string; to: string; account: string; contact: string; property: string;

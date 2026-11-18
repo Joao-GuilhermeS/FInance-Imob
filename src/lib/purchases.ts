@@ -1,7 +1,7 @@
 import { cents, today } from './domain'
 import type { Data, Expense } from './domain'
 import { FieldErrors } from './form-errors'
-export const purchaseCategories: Record<string, string> = { materials: 'Materiais', labor: 'Mão de obra', services: 'Serviços', other: 'Outras despesas' }
+export const purchaseCategories: Record<string, string> = { materials: 'Materiais', labor: 'Mão de obra', services: 'Serviços', taxes: 'Impostos e cartório', commission: 'Comissões', freight: 'Fretes', equipment: 'Equipamentos', utilities: 'Água e energia', other: 'Outras despesas' }
 export type PurchaseFilters = { from: string; to: string; date: 'purchase' | 'due' | 'undated'; property: string; contact: string; category: string; status: string; search: string }
 export const emptyPurchaseFilters = (): PurchaseFilters => ({ from: '', to: '', date: 'purchase', property: '', contact: '', category: '', status: '', search: '' })
 const normalized = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('pt-BR')
