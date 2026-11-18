@@ -10,7 +10,7 @@ export function filterPurchases(data: Data, filters: PurchaseFilters, reference 
   const properties = new Map(data.properties.map(item => [item.id, `${item.code} ${item.name}`]))
   const search = normalized(filters.search.trim())
   return data.expenses.filter(item => {
-    if (item.category === 'refund' || filters.date !== 'undated' && filters.from && filters.to && filters.from > filters.to) return false
+    if (['refund', 'acquisition'].includes(item.category) || filters.date !== 'undated' && filters.from && filters.to && filters.from > filters.to) return false
     const date = filters.date === 'due' ? item.due_on : item.purchased_on
     if (filters.date === 'undated') { if (item.purchased_on) return false }
     else if ((filters.from || filters.to) && (!date || filters.from && date < filters.from || filters.to && date > filters.to)) return false
