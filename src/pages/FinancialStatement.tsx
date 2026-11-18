@@ -6,8 +6,8 @@ import { defaultLedgerFilters, downloadCsv, entryDetails, filterLedger, financia
 import type { LedgerFilters } from '../lib/financial'
 import { FinanceMetric, FinanceTable, LedgerTable } from '../components/FinanceUI'
 
-export function FinancialStatement({ data, onReverse, onPay, onDocuments }: { data: Data; onReverse: (entry: Entry) => void; onPay: (expense: Expense) => void; onDocuments: (entry: Entry) => void }) {
-  const [filters, setFilters] = useState(defaultLedgerFilters)
+export function FinancialStatement({ data, onReverse, onPay, onDocuments, segment }: { data: Data; onReverse: (entry: Entry) => void; onPay: (expense: Expense) => void; onDocuments: (entry: Entry) => void; segment?: 'land' | 'house' }) {
+  const [filters, setFilters] = useState(() => ({ ...defaultLedgerFilters(), segment: segment || '' }))
   const entries = filterLedger(data, filters)
   const total = ledgerTotals(entries)
   const pending = data.expenses.filter(expense => expense.paid_cents < expense.amount_cents)
@@ -33,13 +33,13 @@ export function FinancialStatement({ data, onReverse, onPay, onDocuments }: { da
     <section className="account-grid" aria-label="Saldos atuais das contas">{data.accounts.map(account => <article className="panel account" key={account.id}><Wallet size={21} aria-hidden="true" /><span>{account.name}</span><strong>{money(account.opening_cents + data.ledger.filter(entry => entry.account_id === account.id).reduce((sum, entry) => sum + entry.amount_cents, 0))}</strong><small>Saldo atual · inicial: {money(account.opening_cents)}</small></article>)}</section>
     {!data.accounts.length ? <div className="notice">Adicione uma conta e informe o saldo inicial para começar a registrar pagamentos.</div> : null}
     <section className="panel statement-filters" aria-label="Filtros do extrato">
-      <div className="filter-heading"><h2>Filtrar movimentações</h2><button className="secondary small" onClick={() => setFilters(defaultLedgerFilters())}><FilterX size={16} aria-hidden="true" />Restaurar filtros</button></div>
+      <div className="filter-heading"><h2>Filtrar movimentações</h2><button className="secondary small" onClick={() => setFilters({ ...defaultLedgerFilters(), segment: segment || '' })}><FilterX size={16} aria-hidden="true" />Restaurar filtros</button></div>
       <div className="financial-filter-grid">
         <label>Data inicial<input type="date" value={filters.from} max={filters.to || undefined} onChange={event => change('from', event.target.value)} /></label>
         <label>Data final<input type="date" value={filters.to} min={filters.from || undefined} onChange={event => change('to', event.target.value)} /></label>
         <label>Conta / caixa<select value={filters.account} onChange={event => change('account', event.target.value)}><option value="">Todas as contas</option>{data.accounts.map(account => <option key={account.id} value={account.id}>{account.name}</option>)}</select></label>
         <label>Cliente / fornecedor<select value={filters.contact} onChange={event => change('contact', event.target.value)}><option value="">Todas as pessoas</option>{data.contacts.map(contact => <option key={contact.id} value={contact.id}>{contact.name}</option>)}</select></label>
-        <label>Segmento<select value={filters.segment} onChange={event => change('segment', event.target.value)}><option value="">Empresa consolidada</option><option value="land">Terrenos</option><option value="house">Casas</option><option value="company">Despesas gerais da empresa</option></select></label>
+        <label>Segmento<select disabled={Boolean(segment)} value={filters.segment} onChange={event => change('segment', event.target.value)}><option value="">Empresa consolidada</option><option value="land">Terrenos</option><option value="house">Casas</option><option value="company">Despesas gerais da empresa</option></select></label>
         <label>Imóvel<select value={filters.property} onChange={event => change('property', event.target.value)}><option value="">Todos os imóveis</option>{data.properties.map(property => <option key={property.id} value={property.id}>{property.code} · {property.name}</option>)}</select></label>
         <label>Categoria<select value={filters.category} onChange={event => change('category', event.target.value)}><option value="">Todas as categorias</option>{availableCategories.map(category => <option key={category} value={category}>{financialCategories[category] || category}</option>)}</select></label>
         <label>Operação<select value={filters.operation} onChange={event => change('operation', event.target.value)}><option value="">Todas as operações</option><option value="in">Entradas no caixa</option><option value="out">Saídas do caixa</option><option value="reversal">Somente estornos</option></select></label>

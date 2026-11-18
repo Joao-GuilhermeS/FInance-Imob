@@ -40,3 +40,15 @@ duplicar obrigação de aquisição nem somar devoluções como custo de constru
 - Ajustes de efeitos assíncronos removem os quatro avisos preexistentes de lint.
 - Build/lint sem erros ou avisos; 41 testes unitários. Navegador com API simulada:
   alternância, persistência após reload e inspeção visual Light/Dark em 1440 px.
+
+## Etapa 2
+
+- 16 entradas funcionais agrupadas, com menus colapsáveis e rolagem independente.
+  Terrenos/casas e clientes/fornecedores possuem consultas próprias; mão de obra
+  e serviços consulta somente essas despesas. Reservas em abas de vendas, fichas
+  nos atalhos de cada registro. Links antigos preservados.
+- Drawer abaixo de 1024 px, Escape, foco contido e restaurado, fundo inerte e
+  rolagem de fundo bloqueada. Perfil/papel acessível por menu no header mobile.
+- Build/lint aprovados e 43 testes unitários. Navegador: navegação entre módulos,
+  isolamento de casas/fornecedores, Escape/foco e ausência de overflow da página
+  em 375, 768 e 1440 px. Tabelas mantêm rolagem interna.
