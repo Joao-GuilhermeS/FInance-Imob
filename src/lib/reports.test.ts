@@ -17,7 +17,7 @@ describe('relatórios financeiros', () => {
   it('preserva centavos numéricos e estornos sem somar saldos iniciais', () => {
     const report = statementReport(fixture(), filters())
     expect(report.rows.map(row => row[6]).sort()).toEqual([-3000, 1000])
-    expect(report.notes.join(' ')).toContain('-20.00')
+    expect(report.notes.join(' ')).toContain('20,00')
   })
   it('reconcilia o fluxo agrupado com o extrato', () => {
     const r = buildReport(fixture(), 'monthly', filters())

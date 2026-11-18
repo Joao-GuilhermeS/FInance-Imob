@@ -1,12 +1,22 @@
 # Finance Imob
 
-Primeira implementação da gestão de imóveis, vendas, parcelas, caixa e custos de obras. React + TypeScript + Vite, integrado ao Supabase.
+Gestão financeira de terrenos, casas e obras com React, TypeScript, Vite e Supabase.
 
-Agora inclui fichas financeiras por cliente e imóvel, filtros combinados no extrato, exportação da seleção em CSV e contas a pagar no dashboard. As fichas ficam no menu **Fichas financeiras** e nos atalhos das telas **Imóveis** e **Clientes e fornecedores**, para os perfis administrador e financeiro.
+A versão atual inclui temas claro/escuro persistidos, navegação agrupada com drawer
+no celular e dashboard executivo com períodos, comparações, gráficos e visões de
+caixa consolidado, terrenos e casas. As carteiras e os custos acumulados são posições
+atuais, identificadas separadamente das movimentações do período.
+
+Em **Relatórios**, consulte 11 análises com exportação PDF, XLSX e CSV. Extrato,
+compras e fichas também exportam a seleção. Fichas de clientes e imóveis ficam nos
+atalhos dos cadastros; fornecedores possuem consulta de compras, saldos e pagamentos.
+O extrato oferece recibo PDF individual e comprovantes por movimentação. Vendas
+aceitam cinco periodicidades e juros/descontos fixos explicitamente acordados; não
+há cobrança automática de encargos por atraso.
 
 Os cadastros agora incluem dados pessoais, loteamento/quadra/lote/metragem e dados da construção. Use **Editar cadastro** em pessoas e **Editar imóvel** nos imóveis. O perfil Obras atualiza somente os dados de construção; o Financeiro pode consultar os imóveis e editar pessoas.
 
-O menu **Compras e despesas** registra o que foi comprado/contratado, o valor e a data, com fornecedor e imóvel opcionais. Pesquise por período da compra ou vencimento, descrição, classificação livre, fornecedor, imóvel, categoria e pagamento. Os totais e o CSV refletem a seleção. Não exige cadastro de produtos nem movimenta estoque. Registre o pagamento para movimentar o caixa; anexos ficam no botão **Comprovantes**. Registros históricos sem data da compra permanecem identificados como tal.
+O menu **Compras e despesas** registra o que foi comprado/contratado, o valor e a data, com fornecedor e imóvel opcionais. Pesquise por período da compra ou vencimento, descrição, classificação livre, fornecedor, imóvel, categoria e pagamento. Os totais e as exportações refletem a seleção. Não exige cadastro de produtos nem movimenta estoque. Registre o pagamento para movimentar o caixa; anexos ficam no botão **Comprovantes**. Registros históricos sem data da compra permanecem identificados como tal.
 
 No **Financeiro**, use **Receber outra receita** para entradas sem venda/parcela. A seção **Pagamentos de aquisição de imóveis** permite iniciar o controle do pagamento de cada imóvel com custo positivo: informe explicitamente quanto já foi pago antes do controle e confira o saldo inicial. A abertura não movimenta caixa nem duplica custo; os pagamentos seguintes podem ser parciais e estornados pelo extrato.
 
@@ -53,12 +63,12 @@ npm run preview
 - Projeto configurado: `IMOB-Project`, referência `jahefxamnkcuyayotqcl`.
 - Organização retornada pela integração: `imob`.
 - Migrações aplicadas e versionadas em `supabase/migrations/`, com versões sincronizadas com o remoto.
-- Testes transacionais em `supabase/tests/` (finance_core, registry, sales_lifecycle, purchase_records e income_acquisitions); executar por conexão administrativa confiável ou SQL Editor. Os scripts terminam em ROLLBACK e não deixam fixtures.
-- Somente desenvolvimento está configurado. Não há implantação pública, pipeline de deploy ou ambiente separado de homologação ainda.
-- Repositório: `Joao-GuilhermeS/FInance-Imob`. Autenticação Git local configurada; entregas publicadas na main por branches `codex/` e commits `feat`/`chore`. A integração GitHub pode negar criação de PR/merge; nesse caso, o Git local é utilizado sem force push.
+- Testes transacionais em `supabase/tests/` (oito scripts, incluindo financial_v2 e sale_schedule_options); executar por conexão administrativa confiável ou SQL Editor. Os scripts terminam em ROLLBACK e não deixam fixtures.
+- Somente desenvolvimento está configurado. Não há implantação pública, pipeline de deploy ou ambiente separado de homologação ainda. O GitHub Actions valida lint, testes e build, sem acesso ao banco remoto.
+- Repositório: `Joao-GuilhermeS/FInance-Imob`. Autenticação Git local configurada; entregas publicadas na main por branches de escopo (`feat/` nesta entrega) e commits `feat`/`chore`. A integração GitHub pode negar criação de PR/merge; nesse caso, o Git local é utilizado sem force push.
 
 ## Escopo e próximos passos
 
-Consulte [docs/IMPLEMENTACAO.md](docs/IMPLEMENTACAO.md) para as regras, permissões, verificações e pendências do MVP. Esta entrega inicia os fluxos principais e ainda não representa a conclusão de todos os requisitos do PDF.
+Consulte [docs/IMPLEMENTACAO.md](docs/IMPLEMENTACAO.md) para as regras, permissões, verificações e pendências do MVP. O histórico e a validação desta entrega estão em [docs/REDESIGN_V2.md](docs/REDESIGN_V2.md). Publicação e validação operacional continuam pendentes.
 
 [docs/DESIGN.md](docs/DESIGN.md) registra a direção visual da interface.

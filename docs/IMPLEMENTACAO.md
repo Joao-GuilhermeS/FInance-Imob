@@ -1,4 +1,4 @@
-# Finance Imob — primeira entrega
+# Finance Imob — implementação e histórico
 
 ## Escopo implementado
 
@@ -7,7 +7,7 @@ Aplicação React/TypeScript responsiva, com autenticação por e-mail/senha e b
 - Login individual e autorização no banco: administrador, financeiro, vendas e obras.
 - Cadastro de clientes, fornecedores e prestadores.
 - Cadastro de terrenos e casas; edição de valores de venda e etapa da construção.
-- Venda com entrada prevista e parcelas mensais, sem juros automáticos. À vista é uma obrigação única, confirmada no recebimento.
+- Venda com entrada prevista e periodicidade semanal, a cada 14 dias, mensal, trimestral ou anual. Ajustes fixos de juros/desconto são explícitos e justificados, sem encargos automáticos por atraso. À vista pode usar entrada integral.
 - Datas mensais calculadas a partir do primeiro vencimento, sem desvio de mês após fevereiro.
 - Recebimento integral, parcial e antecipado; saldo atualizado e caixa na mesma transação.
 - Contas/caixas com saldo inicial; despesas com vencimento e pagamentos parciais.
@@ -16,7 +16,7 @@ Aplicação React/TypeScript responsiva, com autenticação por e-mail/senha e b
 - Dashboard com caixa, entradas, saídas e recebíveis; filtros de período para movimentações realizadas.
 - Central de alertas calculada ao consultar; antecedência individual configurável.
 - Contratos, documentos de imóveis e comprovantes de despesas privados (PDF/JPG/PNG, até 10 MB). Links assinados com validade curta.
-- Recibo consolidado por parcela para impressão/PDF e extrato em CSV.
+- Recibo consolidado por parcela e PDF individual por recebimento válido; extrato, compras, fichas e relatórios em PDF/XLSX/CSV.
 - Fichas financeiras de cliente e imóvel, acessíveis pelo menu e por atalhos nos cadastros; vendas, parcelas, saldo pendente, atraso e histórico de pagamentos/estornos.
 - Na ficha do imóvel: aquisição e custos incorridos, obrigações em aberto, resultado previsto da venda e resultado de caixa registrado, sem duplicar custos nem misturar saldo inicial.
 - Extrato com filtros combináveis de período, conta, pessoa, imóvel, segmento, categoria, operação e busca; totais e CSV refletem a seleção. A atualização dos dados preserva os filtros da tela.
@@ -55,14 +55,18 @@ O objetivo principal é o controle financeiro especializado em terrenos, casas e
 
 A fase atual utiliza um único usuário; ampliar a gestão de usuários não é prioridade. Reservas, renegociação e distrato já estão implementados. Compras e despesas possuem registro próprio e consultas por período, imóvel, fornecedor, categoria, situação e texto.
 
-Próximas entregas funcionais:
+Situação após o redesign v2:
 
-1. Ficha de fornecedores com compras, pagamentos e pendências; consultas específicas de mão de obra e serviços.
-2. Dashboard completo por segmento e relatórios gerenciais, com exportação PDF e Excel nativo. CSV já está disponível, mas não substitui essa entrega.
-3. Complementos de vendas (condições, responsável comercial, observações), resumo de entrada/parcelas nas fichas, recibo individual por pagamento e comprovantes acessíveis por recebimento.
-4. Notificações agendadas. A central atual calcula avisos ao consultar, sem envio externo.
-5. Consulta geral de auditoria; os registros de autoria e alterações já existem no banco.
-6. Publicação e validação operacional: backup/restauração, retenção de anexos, URLs de autenticação e SMTP. Backup hospedado ainda não verificado.
+- Concluídos: consulta financeira de fornecedores (compras, pagamentos e pendências),
+  mão de obra/serviços, dashboard por segmento, relatórios PDF/Excel/CSV, condições
+  acordadas da venda, recibo individual e comprovantes por movimentação.
+- Pendentes: responsável comercial e complementos documentais de contratos;
+  notificações agendadas (a central atual calcula avisos ao consultar);
+  tela de auditoria geral (registros já existem no banco).
+- Publicação e validação operacional: backup/restauração, retenção de anexos,
+  URLs de autenticação e SMTP. Backup hospedado e testes de carga não verificados.
+- Estoque e WhatsApp foram adiados expressamente. Não há integração bancária,
+  integração técnica com a Caixa ou assinatura digital nesta entrega.
 
 Posteriores: revisão excepcional de acordos encerrados, gestão ampliada de usuários e cálculos automáticos de juros, descontos, multas ou correção (dependem de regras comerciais). Renegociação conserva o saldo e distrato exige devolução explicitamente acordada.
 
@@ -156,3 +160,12 @@ O projeto não está publicado. A aplicação está configurada para desenvolvim
 - Situação ao implementar: Auth expõe disable_signup=false; a integração não oferece alteração dessa configuração e a CLI retornou Access denied ao consultar a configuração administrativa. Foi solicitado ao responsável desligar Allow new users to sign up no painel. Não foi habilitado provisionamento administrativo aberto a cadastros públicos.
 - Build e 40 testes unitários aprovados; managed_auth_access.sql passou com ROLLBACK, verificando a trava, repetição, preservação de perfis/inatividade e bloqueio de anônimos, e-mails não confirmados e contas banidas. Navegador com API simulada confirmou passagem de usuário sem perfil para o dashboard via RPC. O React StrictMode pode disparar duas chamadas na montagem; ambas são idempotentes.
 - Advisor mantém aviso conhecido de proteção contra senhas vazadas desativada. A tabela privada de configuração possui RLS e nenhum grant ao cliente; o informativo RLS sem políticas representa negação por padrão nessa tabela privada, não acesso aberto.
+
+
+## Redesign v2 — 18/11/2026
+
+Design system, navegação, dashboard executivo e core financeiro descritos em
+[REDESIGN_V2.md](REDESIGN_V2.md). 62 testes unitários, oito scripts SQL transacionais
+reais e 102 combinações de tela/tema/viewport no build de produção com API simulada.
+As verificações históricas abaixo descrevem o estado de cada entrega naquela data;
+pendências antigas de dashboard/exportação foram concluídas nesta versão.
