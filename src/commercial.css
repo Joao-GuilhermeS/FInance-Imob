@@ -4,3 +4,6 @@
 .agreement-preview { padding: 1rem; border-radius: 12px; background: #edf5ef; color: #214b37; grid-column: 1 / -1; overflow-wrap: anywhere; }
 .agreement-preview p { margin-bottom: 0; }
 .commercial-actions { display: flex; flex-wrap: wrap; gap: .4rem; }
+
+.purchase-period-actions { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1rem 0; }
+.purchase-description { min-width: 220px; max-width: 380px; white-space: normal; overflow-wrap: anywhere; }
