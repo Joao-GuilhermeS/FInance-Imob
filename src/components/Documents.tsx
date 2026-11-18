@@ -14,9 +14,14 @@ export function Documents({ entity, id, title, onClose }: { entity: string; id: 
   }
   useEffect(() => {
     ref.current?.showModal()
-    void load().catch(err => setError(err.message))
+    let current = true
+    void supabase.storage.from('documents').list(prefix, { limit: 100, sortBy: { column: 'name', order: 'asc' } }).then(({ data, error: failure }) => {
+      if (!current) return
+      if (failure) setError(failure.message)
+      else setFiles(data || [])
+    }).catch(err => { if (current) setError(err.message) })
     const node = ref.current
-    return () => node?.close()
+    return () => { current = false; node?.close() }
     // Prefix identifies the immutable record for this dialog.
   }, [prefix])
   async function upload(file?: File) {

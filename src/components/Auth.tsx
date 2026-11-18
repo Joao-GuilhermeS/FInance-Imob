@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { ArrowRight, Building2, ShieldCheck } from 'lucide-react'
 import { configured, supabase } from '../lib/supabase'
+import { ThemeToggle } from './ThemeToggle'
 export function Auth() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
@@ -14,7 +15,7 @@ export function Auth() {
     } catch { setError('Não foi possível entrar. Confira seu e-mail, senha e conexão.'); }
     finally { setBusy(false) }
   }
-  return <main className="auth-page"><section className="auth-story"><a className="brand" href="/"><span className="brand-symbol"><Building2 /></span>finance<span className="brand-light">imob</span></a>
+  return <main className="auth-page"><div className="auth-theme"><ThemeToggle /></div><section className="auth-story"><a className="brand" href="/"><span className="brand-symbol"><Building2 /></span>finance<span className="brand-light">imob</span></a>
     <div><p className="eyebrow">GESTÃO IMOBILIÁRIA, CONECTADA.</p><h1>Mais clareza.<br />Melhores decisões.</h1><p>Da primeira venda ao resultado de cada obra.<br />Sua operação, em um só lugar.</p><div className="auth-lines"><span>01 <strong>Imóveis e vendas</strong></span><span>02 <strong>Parcelas e recebimentos</strong></span><span>03 <strong>Obras e resultados</strong></span></div></div>
     <small>Organização financeira para construir o próximo passo.</small></section>
     <section className="auth-form"><div className="login-card"><span className="login-icon"><ShieldCheck size={26} /></span><p className="eyebrow">SEU ESPAÇO DE GESTÃO</p><h2>Bem-vindo de volta</h2><p className="muted">Entre com seu acesso individual para continuar.</p>
