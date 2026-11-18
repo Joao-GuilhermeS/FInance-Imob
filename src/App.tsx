@@ -18,6 +18,7 @@ const navigation = [
   { path: '/parcelas', label: 'Parcelas e recebimentos', icon: ArrowDownLeft, roles: ['admin','finance'] },
   { path: '/financeiro', label: 'Financeiro', icon: Wallet, roles: ['admin','finance'] },
   { path: '/fichas', label: 'Fichas financeiras', icon: ClipboardList, roles: ['admin','finance'] },
+  { path: '/compras', label: 'Compras e despesas', icon: ClipboardList, roles: ['admin','finance','works'] },
   { path: '/obras', label: 'Obras e custos', icon: HardHat, roles: ['admin','finance','works'] },
   { path: '/alertas', label: 'Central de alertas', icon: Bell, roles: ['admin','finance'] },
   { path: '/configuracoes', label: 'Configurações', icon: Settings, roles: ['admin','finance','sales','works'] },

@@ -49,20 +49,25 @@ Aplicação React/TypeScript responsiva, com autenticação por e-mail/senha e b
 
 As permissões são verificadas por RLS, privilégios de coluna e funções autorizadas. Esconder um botão não é a barreira de acesso. Nenhuma chave privilegiada fica no navegador.
 
-## Próximos incrementos para fechar o MVP aprovado
+## Prioridades do MVP financeiro — revisão de 18/11/2026
 
-1. Revisão operacional dos acordos já registrados, incluindo correção excepcional de recebimentos protegidos por renegociação/distrato. Reservas, distrato e renegociação estão implementados.
-2. Histórico de alterações cadastrais/auditoria consultável e recibo individual por pagamento. As fichas financeiras consolidadas e o histórico de movimentações já estão disponíveis.
-3. Compra com múltiplos itens e preço unitário, categorias configuráveis, rateio e pagamentos da aquisição sem duplicação de custo.
-4. Multas, juros e descontos automáticos dependem de regras futuras. Nesta entrega, o saldo é preservado na renegociação e a devolução é explicitamente acordada.
-5. Definir juros, descontos, multa e correção antes de automatizar esses cálculos.
-6. Relatórios completos em Excel (.xlsx) e PDF. CSV e impressão de recibos já estão disponíveis; não equivalem a essa entrega completa.
-7. Relatórios gerenciais adicionais e rateio de despesas administrativas por imóvel. Filtros do extrato, resultado de caixa por imóvel, contas a pagar no dashboard e separação de terrenos/casas já estão implementados.
-8. Notificações agendadas em segundo plano. A central atual calcula avisos ao consultar e não envia mensagens externas.
-9. Gestão de usuários pela interface sem depender do painel Supabase para criar/recuperar contas.
-10. Validar política operacional de backup/restauração, retenção de dados/anexos, implantação, SMTP e configuração de URLs de autenticação. A configuração do backup hospedado ainda não foi verificada.
+O objetivo principal é o controle financeiro especializado em terrenos, casas e obras. Conforme esclarecimento do responsável, compras são registros livres do que foi comprado, por quanto e quando. Não haverá cadastro obrigatório de produtos, entradas/saídas físicas, inventário ou transferências de estoque. Quantidade e unidade são complementos opcionais; o valor total é informado diretamente. Cadastro de categorias também não é pré-requisito: a classificação complementar é texto livre pesquisável.
 
-Estoque, WhatsApp automático, integração bancária, integração técnica com a Caixa e assinatura digital permanecem fora do primeiro recorte, conforme proposta de MVP.
+A fase atual utiliza um único usuário; ampliar a gestão de usuários não é prioridade. Reservas, renegociação e distrato já estão implementados. Compras e despesas possuem registro próprio e consultas por período, imóvel, fornecedor, categoria, situação e texto.
+
+Próximas entregas funcionais:
+
+1. Outras receitas sem vínculo com venda e pagamentos da aquisição de imóveis, sem duplicação do custo cadastrado.
+2. Ficha de fornecedores com compras, pagamentos e pendências; consultas específicas de mão de obra e serviços.
+3. Dashboard completo por segmento e relatórios gerenciais, com exportação PDF e Excel nativo. CSV já está disponível, mas não substitui essa entrega.
+4. Complementos de vendas (condições, responsável comercial, observações), resumo de entrada/parcelas nas fichas, recibo individual por pagamento e comprovantes acessíveis por recebimento.
+5. Notificações agendadas. A central atual calcula avisos ao consultar, sem envio externo.
+6. Consulta geral de auditoria; os registros de autoria e alterações já existem no banco.
+7. Publicação e validação operacional: backup/restauração, retenção de anexos, URLs de autenticação e SMTP. Backup hospedado ainda não verificado.
+
+Posteriores: revisão excepcional de acordos encerrados, gestão ampliada de usuários e cálculos automáticos de juros, descontos, multas ou correção (dependem de regras comerciais). Renegociação conserva o saldo e distrato exige devolução explicitamente acordada.
+
+WhatsApp automático, integração bancária, integração técnica com a Caixa e assinatura digital permanecem fora do primeiro recorte. Rateio administrativo e compras com múltiplos itens na mesma nota são melhorias possíveis, não condições para fechar esta etapa.
 
 ## Verificação
 
@@ -115,3 +120,17 @@ O projeto não está publicado. A aplicação está configurada para desenvolvim
 - Build aprovado; 30 testes unitários. Lint sem erros, com quatro avisos preexistentes em App/Documents.
 - Navegador com API simulada: prévia de renegociação, valores enviados aos RPCs de renegociação/distrato e diálogo de distrato em 375 px sem transbordamento horizontal. A verificação do banco foi separada e real; a simulação não altera dados remotos.
 - Advisor mantém apenas o aviso já documentado de proteção contra senhas vazadas desativada. Publicação da aplicação permanece pendente.
+
+## Quinta entrega: compras e despesas financeiras — 18/11/2026
+
+- Novo menu **Compras e despesas**, disponível para administrador, financeiro e obras. A antiga lista resumida de Obras direciona à consulta completa; o botão de registrar continua disponível em ambas as telas.
+- Registro rápido: descrição livre, valor total, data da compra/contratação, vencimento e categoria. Imóvel/obra e fornecedor são opcionais para administrador/financeiro; Obras exige imóvel. Quantidade, unidade, classificação livre e observações são opcionais. Não há catálogo de produtos nem controle de estoque.
+- O registro não movimenta caixa. Custo e obrigação usam a mesma despesa; pagamentos parciais e estornos usam os fluxos financeiros existentes. Comprovantes permanecem anexados à despesa.
+- Consulta por data da compra ou vencimento, intervalo inclusivo, atalhos de hoje/mês/ano, imóvel/empresa, fornecedor, categoria, situação de pagamento e busca sem acentos. Classificação e observações entram na busca.
+- Totais de custo registrado, pagos até agora, saldo pendente e saldo vencido refletem a seleção; CSV exporta somente os registros selecionados. Pagamentos são saldos atuais, não movimentações limitadas ao período da compra. Saídas por data de pagamento continuam no Financeiro.
+- Datas antigas desconhecidas permanecem nulas. Sem período, aparecem todos os registros; opção específica localiza registros sem data da compra. Não se usa criação/vencimento como data da compra presumida.
+- Devoluções de distrato ficam no Financeiro e não são classificadas como compras. O módulo não altera custo de aquisição de imóveis.
+- Migração aditiva aplicada no IMOB-Project, sem apagar dados existentes; histórico remoto e local sincronizados. Novo RPC valida entradas, papéis, fornecedor/prestador, autoria e idempotência com conferência de todos os dados da solicitação. API antiga de despesas preservada.
+- Build e 35 testes unitários aprovados. Lint sem erros; quatro avisos preexistentes em App/Documents. Quatro scripts SQL transacionais aprovados (purchase_records, finance_core, registry e sales_lifecycle), sempre com ROLLBACK das fixtures.
+- Interface verificada em navegador com API simulada: filtros combinados, totais, CSV baixado e inspecionado, filtros preservados após atualizar, histórico sem data, validação sem perda de preenchimento, payload monetário em centavos e novo registro refletido na lista. Desktop e 375 px sem transbordamento horizontal da página ou diálogo. Nenhuma fixture de navegador foi gravada no banco remoto; regras reais verificadas separadamente pelos scripts SQL.
+- Advisor sem novos alertas; permanece o aviso conhecido de senhas vazadas desativado: https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection.
