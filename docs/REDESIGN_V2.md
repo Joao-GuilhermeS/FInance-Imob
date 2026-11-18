@@ -91,3 +91,12 @@ duplicar obrigação de aquisição nem somar devoluções como custo de constru
   API usada no código fonte da dependência (v4); npm audit sem vulnerabilidades.
   O pacote browser pré-compilado contém sua própria implementação e não lê esse
   override; o aviso de uuid cobre v3/v5/v6 com buffer fornecido, não usados aqui.
+
+- Venda configurável: semanal, a cada 14 dias, mensal, trimestral e anual; ajustes
+  de juros/desconto em valor fixo explicitamente informado, com descrição obrigatória
+  quando houver ajuste e prévia do total/datas. Sem taxa presumida, capitalização ou
+  encargos por atraso. Entrada + parcelas reconciliam o total em centavos. À vista
+  pode usar entrada integral. Conversão de reserva usa o mesmo fluxo. Renegociação
+  conserva a regra anterior (saldo mantido, cronograma mensal, sem novos ajustes).
+- Oitavo roteiro SQL cobre periodicidades, fim de mês, ajustes, idempotência e acesso;
+  62 testes unitários. Prévia e formulário mobile verificados no navegador simulado.
