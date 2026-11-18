@@ -45,7 +45,7 @@ td { font-size:13px; }
 @media(min-width:1600px) { .content { padding:36px 44px 0; }.topbar{padding:0 44px;} }
 @media(max-width:1199px) { .heading-actions{max-width:100%;}.page-heading{align-items:flex-start;flex-wrap:wrap;}.content{padding:28px 24px 0;}.topbar{padding:0 24px;}.property-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
 @media(max-width:1023px) {
-  .v2-sidebar { width:280px;max-width:calc(100vw - 40px);visibility:hidden;transform:translateX(-100%);transition:transform .2s,visibility .2s;z-index:50; }
+  .v2-sidebar { width:280px;max-width:calc(100vw - 40px);visibility:hidden;transform:translateX(-100%);transition:transform .2s;z-index:50; }
   .v2-sidebar.open { visibility:visible;transform:translateX(0); }
   .v2-sidebar nav a { min-height:44px;font-size:13px; }
   .v2-sidebar .nav-group-toggle { min-height:40px;font-size:10px; }
