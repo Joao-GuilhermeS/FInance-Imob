@@ -61,4 +61,3 @@ small,th,td small,.page-heading p:not(.eyebrow){font-size:12px}.eyebrow{font-siz
 @media print{:root,:root[data-theme=dark]{--bg-page:#fff;--bg-surface:#fff;--text-primary:#18181b;--text-secondary:#52525b;--border-subtle:#ddd;color-scheme:light}}
 
 .support strong{color:var(--on-hero)}.auth-story .eyebrow,.auth-story p:not(.eyebrow),.auth-story small{color:var(--sidebar-text)}
-
