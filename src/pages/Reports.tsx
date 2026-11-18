@@ -1,14 +1,18 @@
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { filterLedger } from '../lib/financial'
+import { statementReport } from '../lib/reports'
 import type { Data } from '../lib/domain'
 import { buildReport, initialReportFilters, reportTypes } from '../lib/reports'
 import type { ReportFilters, ReportKind } from '../lib/reports'
 import { reportCell } from '../lib/report-export'
 import { ReportExport } from '../components/ReportExport'
-import { FinanceTable } from '../components/FinanceUI'
+import { FinanceTable, LedgerTable } from '../components/FinanceUI'
 
 export function Reports({ data }: { data: Data }) {
-  const [kind, setKind] = useState<ReportKind>('statement')
-  const [filters, setFilters] = useState(initialReportFilters)
+  const [params] = useSearchParams()
+  const [kind, setKind] = useState<ReportKind>(() => params.get('relatorio') === 'suppliers' ? 'suppliers' : 'statement')
+  const [filters, setFilters] = useState(() => params.get('pessoa') ? { ...initialReportFilters(), from: '', to: '', contact: params.get('pessoa')! } : initialReportFilters())
   const invalid = Boolean(filters.from && filters.to && filters.from > filters.to)
   const report = buildReport(data, kind, filters)
   function change(key: keyof ReportFilters, value: string) { setFilters(current => ({ ...current, [key]: value })) }
@@ -25,5 +29,6 @@ export function Reports({ data }: { data: Data }) {
       {kind === 'receivables' ? <label>Situação<select value={filters.status} onChange={e => change('status', e.target.value)}><option value="">Todas</option><option value="pending">A receber</option><option value="late">Vencidas</option><option value="paid">Pagas</option></select></label> : null}
     </div></section>
     {invalid && !position ? <p className="notice error" role="alert">A data inicial deve ser anterior ou igual à final.</p> : <section className="panel"><div className="panel-heading"><div><h2>{report.title}</h2><p role="status">{report.rows.length} registros encontrados</p></div></div>{report.notes.map(note => <p className="notice" key={note}>{note}</p>)}<FinanceTable headers={report.columns.map(c => c.label)} empty={!report.rows.length ? 'Nenhum registro na seleção' : undefined}>{report.rows.map((row, i) => <tr key={i}>{row.map((cell, j) => <td key={j}>{reportCell(cell, report.columns[j])}</td>)}</tr>)}</FinanceTable></section>}
+    {kind === 'suppliers' && !invalid ? <section className="panel"><div className="panel-heading"><div><h2>Pagamentos e estornos do fornecedor</h2><p>Por data da movimentação · os filtros de período, pessoa e imóvel também se aplicam aqui.</p></div><ReportExport report={statementReport(data, filters)} /></div><LedgerTable entries={filterLedger(data, filters)} data={data} /></section> : null}
   </>
 }
