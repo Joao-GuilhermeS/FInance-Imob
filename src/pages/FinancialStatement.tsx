@@ -6,7 +6,7 @@ import { defaultLedgerFilters, downloadCsv, entryDetails, filterLedger, financia
 import type { LedgerFilters } from '../lib/financial'
 import { FinanceMetric, FinanceTable, LedgerTable } from '../components/FinanceUI'
 
-export function FinancialStatement({ data, onReverse, onPay }: { data: Data; onReverse: (entry: Entry) => void; onPay: (expense: Expense) => void }) {
+export function FinancialStatement({ data, onReverse, onPay, onDocuments }: { data: Data; onReverse: (entry: Entry) => void; onPay: (expense: Expense) => void; onDocuments: (entry: Entry) => void }) {
   const [filters, setFilters] = useState(defaultLedgerFilters)
   const entries = filterLedger(data, filters)
   const total = ledgerTotals(entries)
@@ -19,13 +19,13 @@ export function FinancialStatement({ data, onReverse, onPay }: { data: Data; onR
   function exportStatement() {
     const index = financialIndex(data)
     downloadCsv(`extrato-${filters.from || 'inicio'}-${filters.to || 'atual'}.csv`, [
-      ['Data', 'Descrição', 'Categoria', 'Pessoa', 'Imóvel', 'Conta', 'Valor (R$)', 'Forma', 'Situação'],
+      ['Data', 'Descrição', 'Categoria', 'Pessoa', 'Imóvel', 'Conta', 'Valor (R$)', 'Forma', 'Situação', 'Observações'],
       ...entries.map(entry => {
         const detail = entryDetails(entry, index)
         return [entry.occurred_on, entry.description, financialCategories[detail.category] || detail.category,
           detail.contact?.name || '', detail.property?.code || 'Empresa', detail.account?.name || '',
           (entry.amount_cents / 100).toFixed(2).replace('.', ','), entry.method,
-          entry.reversal_of ? 'Estorno' : detail.reversed ? 'Lançamento estornado' : 'Confirmado']
+          entry.reversal_of ? 'Estorno' : detail.reversed ? 'Lançamento estornado' : 'Confirmado', entry.notes || '']
       }),
     ])
   }
@@ -47,7 +47,7 @@ export function FinancialStatement({ data, onReverse, onPay }: { data: Data; onR
       </div>
     </section>
     <section className="stats three" aria-label="Totais do extrato filtrado"><FinanceMetric label="Entradas da seleção" value={total.income} note="Inclui estornos de pagamentos" /><FinanceMetric label="Saídas da seleção" value={total.outcome} note="Inclui estornos de recebimentos" /><FinanceMetric label="Resultado de caixa da seleção" value={total.result} note="Entradas menos saídas filtradas" accent /></section>
-    <section className="panel"><div className="panel-heading"><div><h2>Extrato de movimentações</h2><p role="status" aria-live="polite">{entries.length} {entries.length === 1 ? 'movimentação encontrada' : 'movimentações encontradas'} · saldos das contas acima não são filtrados</p></div><button className="secondary" onClick={exportStatement} disabled={!entries.length}><Download size={16} aria-hidden="true" />Exportar seleção CSV</button></div><LedgerTable entries={entries} data={data} onReverse={onReverse} /></section>
-    <section className="panel payable"><div className="panel-heading"><div><h2>Contas a pagar</h2><p>Todos os vencimentos · independente dos filtros do extrato</p></div><strong>{money(payable.pending)}</strong></div><FinanceTable headers={['Despesa / fornecedor', 'Imóvel', 'Vencimento', 'Saldo a pagar', 'Situação', 'Ação']} empty={!pending.length ? 'Nenhuma conta pendente' : undefined}>{pending.map(expense => <tr key={expense.id}><td><strong>{expense.description}</strong><small>{data.contacts.find(contact => contact.id === expense.contact_id)?.name || 'Sem fornecedor'}</small></td><td>{data.properties.find(property => property.id === expense.property_id)?.code || 'Empresa'}</td><td>{dateLabel(expense.due_on)}</td><td>{money(expense.amount_cents - expense.paid_cents)}</td><td><span className={`badge ${expense.due_on < today() ? 'danger' : 'neutral'}`}>{expense.due_on < today() ? 'Em atraso' : expense.paid_cents ? 'Paga parcialmente' : 'A pagar'}</span></td><td><button className="small secondary" onClick={() => onPay(expense)}>Pagar</button></td></tr>)}</FinanceTable></section>
+    <section className="panel"><div className="panel-heading"><div><h2>Extrato de movimentações</h2><p role="status" aria-live="polite">{entries.length} {entries.length === 1 ? 'movimentação encontrada' : 'movimentações encontradas'} · saldos das contas acima não são filtrados</p></div><button className="secondary" onClick={exportStatement} disabled={!entries.length}><Download size={16} aria-hidden="true" />Exportar seleção CSV</button></div><LedgerTable entries={entries} data={data} onReverse={onReverse} onDocuments={onDocuments} /></section>
+    <section className="panel payable"><div className="panel-heading"><div><h2>Contas a pagar</h2><p>Todos os vencimentos · independente dos filtros do extrato</p></div><strong>{money(payable.pending)}</strong></div><FinanceTable headers={['Despesa / fornecedor', 'Imóvel', 'Vencimento', 'Saldo a pagar', 'Situação', 'Ação']} empty={!pending.length ? 'Nenhuma conta pendente' : undefined}>{pending.map(expense => <tr key={expense.id}><td><strong>{expense.description}</strong>{expense.category === 'acquisition' ? <small>Aquisição · {money(expense.opening_paid_cents || 0)} reconhecidos antes do controle</small> : null}<small>{data.contacts.find(contact => contact.id === expense.contact_id)?.name || 'Sem fornecedor'}</small></td><td>{data.properties.find(property => property.id === expense.property_id)?.code || 'Empresa'}</td><td>{dateLabel(expense.due_on)}</td><td>{money(expense.amount_cents - expense.paid_cents)}</td><td><span className={`badge ${expense.due_on < today() ? 'danger' : 'neutral'}`}>{expense.due_on < today() ? 'Em atraso' : expense.paid_cents ? 'Paga parcialmente' : 'A pagar'}</span></td><td><button className="small secondary" onClick={() => onPay(expense)}>Pagar</button></td></tr>)}</FinanceTable></section>
   </>
 }

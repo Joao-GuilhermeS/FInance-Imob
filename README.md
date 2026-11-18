@@ -8,6 +8,8 @@ Os cadastros agora incluem dados pessoais, loteamento/quadra/lote/metragem e dad
 
 O menu **Compras e despesas** registra o que foi comprado/contratado, o valor e a data, com fornecedor e imóvel opcionais. Pesquise por período da compra ou vencimento, descrição, classificação livre, fornecedor, imóvel, categoria e pagamento. Os totais e o CSV refletem a seleção. Não exige cadastro de produtos nem movimenta estoque. Registre o pagamento para movimentar o caixa; anexos ficam no botão **Comprovantes**. Registros históricos sem data da compra permanecem identificados como tal.
 
+No **Financeiro**, use **Receber outra receita** para entradas sem venda/parcela. A seção **Pagamentos de aquisição de imóveis** permite iniciar o controle do pagamento de cada imóvel com custo positivo: informe explicitamente quanto já foi pago antes do controle e confira o saldo inicial. A abertura não movimenta caixa nem duplica custo; os pagamentos seguintes podem ser parciais e estornados pelo extrato.
+
 ## Executar
 
 Requer Node.js 24 e npm.
@@ -51,7 +53,7 @@ npm run preview
 - Projeto configurado: `IMOB-Project`, referência `jahefxamnkcuyayotqcl`.
 - Organização retornada pela integração: `imob`.
 - Migrações aplicadas e versionadas em `supabase/migrations/`, com versões sincronizadas com o remoto.
-- Testes transacionais em `supabase/tests/` (finance_core, registry, sales_lifecycle e purchase_records); executar por conexão administrativa confiável ou SQL Editor. Os scripts terminam em ROLLBACK e não deixam fixtures.
+- Testes transacionais em `supabase/tests/` (finance_core, registry, sales_lifecycle, purchase_records e income_acquisitions); executar por conexão administrativa confiável ou SQL Editor. Os scripts terminam em ROLLBACK e não deixam fixtures.
 - Somente desenvolvimento está configurado. Não há implantação pública, pipeline de deploy ou ambiente separado de homologação ainda.
 - Repositório: `Joao-GuilhermeS/FInance-Imob`. Autenticação Git local configurada; entregas publicadas na main por branches `codex/` e commits `feat`/`chore`. A integração GitHub pode negar criação de PR/merge; nesse caso, o Git local é utilizado sem force push.
 

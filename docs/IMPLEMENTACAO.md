@@ -29,8 +29,8 @@ Aplicação React/TypeScript responsiva, com autenticação por e-mail/senha e b
 
 1. Valores em centavos inteiros; não usar ponto flutuante para armazenar dinheiro.
 2. Venda não altera caixa. Entrada prevista também precisa ser recebida.
-3. Despesa compõe o custo ao ser registrada; caixa muda somente no pagamento.
-4. Aquisição é um custo-base do cadastro do imóvel, não uma segunda despesa na apuração de custos. A primeira entrega não registra o financiamento/pagamento da aquisição: saldo inicial deve refletir a situação de abertura do sistema.
+3. Despesa operacional compõe o custo ao ser registrada; caixa muda somente no pagamento. A obrigação de aquisição não soma novo custo: o valor já integra o cadastro do imóvel.
+4. Aquisição é um custo-base do cadastro do imóvel, não uma segunda despesa na apuração de custos. O Financeiro permite iniciar uma obrigação de aquisição, reconhecer explicitamente pagamentos anteriores e pagar o restante. O saldo inicial deve refletir a situação de abertura do sistema; o reconhecimento anterior não cria lançamento de caixa.
 5. Recebimentos e pagamentos são limitados ao saldo restante. A operação trava a parcela/despesa no banco.
 6. Chaves de solicitação previnem duplicação em tentativas repetidas do mesmo envio.
 7. Estornos preservam o registro original e restauram o saldo pendente.
@@ -57,13 +57,12 @@ A fase atual utiliza um único usuário; ampliar a gestão de usuários não é 
 
 Próximas entregas funcionais:
 
-1. Outras receitas sem vínculo com venda e pagamentos da aquisição de imóveis, sem duplicação do custo cadastrado.
-2. Ficha de fornecedores com compras, pagamentos e pendências; consultas específicas de mão de obra e serviços.
-3. Dashboard completo por segmento e relatórios gerenciais, com exportação PDF e Excel nativo. CSV já está disponível, mas não substitui essa entrega.
-4. Complementos de vendas (condições, responsável comercial, observações), resumo de entrada/parcelas nas fichas, recibo individual por pagamento e comprovantes acessíveis por recebimento.
-5. Notificações agendadas. A central atual calcula avisos ao consultar, sem envio externo.
-6. Consulta geral de auditoria; os registros de autoria e alterações já existem no banco.
-7. Publicação e validação operacional: backup/restauração, retenção de anexos, URLs de autenticação e SMTP. Backup hospedado ainda não verificado.
+1. Ficha de fornecedores com compras, pagamentos e pendências; consultas específicas de mão de obra e serviços.
+2. Dashboard completo por segmento e relatórios gerenciais, com exportação PDF e Excel nativo. CSV já está disponível, mas não substitui essa entrega.
+3. Complementos de vendas (condições, responsável comercial, observações), resumo de entrada/parcelas nas fichas, recibo individual por pagamento e comprovantes acessíveis por recebimento.
+4. Notificações agendadas. A central atual calcula avisos ao consultar, sem envio externo.
+5. Consulta geral de auditoria; os registros de autoria e alterações já existem no banco.
+6. Publicação e validação operacional: backup/restauração, retenção de anexos, URLs de autenticação e SMTP. Backup hospedado ainda não verificado.
 
 Posteriores: revisão excepcional de acordos encerrados, gestão ampliada de usuários e cálculos automáticos de juros, descontos, multas ou correção (dependem de regras comerciais). Renegociação conserva o saldo e distrato exige devolução explicitamente acordada.
 
@@ -134,3 +133,16 @@ O projeto não está publicado. A aplicação está configurada para desenvolvim
 - Build e 35 testes unitários aprovados. Lint sem erros; quatro avisos preexistentes em App/Documents. Quatro scripts SQL transacionais aprovados (purchase_records, finance_core, registry e sales_lifecycle), sempre com ROLLBACK das fixtures.
 - Interface verificada em navegador com API simulada: filtros combinados, totais, CSV baixado e inspecionado, filtros preservados após atualizar, histórico sem data, validação sem perda de preenchimento, payload monetário em centavos e novo registro refletido na lista. Desktop e 375 px sem transbordamento horizontal da página ou diálogo. Nenhuma fixture de navegador foi gravada no banco remoto; regras reais verificadas separadamente pelos scripts SQL.
 - Advisor sem novos alertas; permanece o aviso conhecido de senhas vazadas desativado: https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection.
+
+## Sexta entrega: outras receitas e pagamentos de aquisição — 18/11/2026
+
+- **Financeiro → Receber outra receita**: registra entrada efetiva com descrição livre, conta, valor, data, forma de pagamento, pessoa/imóvel opcionais e observações. Categoria própria no extrato, filtros, CSV, comprovantes pelo lançamento e estorno justificado. Não gera nem baixa parcelas de vendas.
+- **Financeiro → Pagamentos de aquisição de imóveis**: cada imóvel com custo positivo pode ter uma obrigação única, iniciada explicitamente pelo operador. O custo cadastrado é conferido contra o valor esperado para rejeitar formulários desatualizados. Imóveis não iniciados mostram saldo “a conferir” e não geram contas a pagar presumidas.
+- Na abertura, exige valor já pago (inclusive zero), justificativa e conferência de que o saldo inicial já considera pagamentos anteriores. Esse reconhecimento é auditável, protegido após confirmação e reduz a obrigação sem gerar movimentação de caixa. Não se infere que aquisições antigas estão pagas ou pendentes.
+- Pagamentos novos podem ser parciais, com data/conta/forma, e usam o fluxo financeiro existente. Limite de pagamento considera o reconhecimento anterior. Estorno restaura apenas o valor pago neste controle. Vencimento único para o saldo; não há cronograma parcelado de aquisição nesta entrega.
+- Aquisição não duplica custo em obras/fichas e não entra como compra operacional. Conta a pagar inclui o saldo de aquisição. Receitas avulsas compõem caixa e aparecem separadas dos recebimentos contratuais nas fichas.
+- Formulários e RPCs reservados a administrador/financeiro. Obras não consulta as obrigações de aquisição nem registra receitas avulsas. Notas e pessoa são preservadas em estornos de receitas.
+- Migração aditiva aplicada, com histórico local/remoto sincronizado. Cinco scripts SQL transacionais aprovados: income_acquisitions, finance_core, registry, sales_lifecycle e purchase_records. Fixtures revertidas por ROLLBACK. Testes cobrem reconhecimento inicial, parcial, quitação, estorno, limite de pagamento, repetição de solicitações, dados alterados, custo desatualizado, privacidade e bloqueio anônimo.
+- Build e 40 testes unitários aprovados. Lint sem erros, quatro avisos preexistentes em App/Documents. Advisor mantém somente o aviso conhecido de senhas vazadas desativadas, já documentado.
+- Navegador com API simulada: prévia do saldo, payload da aquisição, valor padrão de pagamento considerando reconhecimento anterior, pagamento parcial refletido no caixa e obrigação; receita com pessoa/imóvel refletida no extrato e conta; CSV baixado e inspecionado. Layouts desktop e 375 px conferidos. O botão de comprovantes foi conferido com Storage simulado (caminho ledger/id); envio real não foi repetido nesta entrega. A primeira tentativa com token fictício chegou ao Storage e retornou 400, corretamente mostrado na interface; a simulação foi completada para isolar a verificação. Nenhum registro de navegador foi gravado no banco real.
+- Ainda não há publicação nem teste de carga. Correção da situação inicial de aquisição após confirmação depende de futuro fluxo auditado; não há alteração direta dessa base pela interface.

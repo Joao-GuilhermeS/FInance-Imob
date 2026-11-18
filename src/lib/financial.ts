@@ -3,7 +3,7 @@ import { installmentOutstanding, today } from './domain'
 import { saleIsActive } from './sales-lifecycle'
 
 export const financialCategories: Record<string, string> = {
-  sale: 'Recebimento de venda', materials: 'Materiais', labor: 'Mão de obra', refund: 'Devolução por distrato',
+  other_income: 'Outras receitas', sale: 'Recebimento de venda', materials: 'Materiais', labor: 'Mão de obra', refund: 'Devolução por distrato',
   services: 'Serviços', acquisition: 'Aquisição', other: 'Outras despesas', expense: 'Despesa',
 }
 export type LedgerFilters = {
@@ -28,7 +28,7 @@ export function entryDetails(entry: Entry, index: ReturnType<typeof financialInd
   const installment = entry.installment_id ? index.installments.get(entry.installment_id) : undefined
   const sale = installment ? index.sales.get(installment.sale_id) : undefined
   const expense = entry.expense_id ? index.expenses.get(entry.expense_id) : undefined
-  const contactId = sale?.contact_id || expense?.contact_id || null
+  const contactId = sale?.contact_id || expense?.contact_id || entry.contact_id || null
   const propertyId = entry.property_id || sale?.property_id || expense?.property_id || null
   const category = expense?.category || (installment ? 'sale' : entry.category)
   return {
@@ -79,7 +79,7 @@ export function financialRecord(data: Data, kind: 'client' | 'property', id: str
   const installmentIds = new Set(installments.map(item => item.id))
   const refunds = data.expenses.filter(expense => expense.refund_sale_id && saleIds.has(expense.refund_sale_id))
   const refundIds = new Set(refunds.map(expense => expense.id))
-  const ledger = data.ledger.filter(entry => kind === 'property' ? entry.property_id === id : entry.installment_id !== null && installmentIds.has(entry.installment_id) || entry.expense_id !== null && refundIds.has(entry.expense_id))
+  const ledger = data.ledger.filter(entry => kind === 'property' ? entry.property_id === id : entry.installment_id !== null && installmentIds.has(entry.installment_id) || entry.expense_id !== null && refundIds.has(entry.expense_id) || entry.category === 'other_income' && entry.contact_id === id)
     .sort((a, b) => b.occurred_on.localeCompare(a.occurred_on) || b.id.localeCompare(a.id))
   const expenses = kind === 'property' ? data.expenses.filter(expense => expense.property_id === id) : []
   const property = kind === 'property' ? data.properties.find(item => item.id === id) : undefined
@@ -89,11 +89,12 @@ export function financialRecord(data: Data, kind: 'client' | 'property', id: str
   const receivedGross = installments.reduce((sum, item) => sum + item.received_cents, 0)
   const refunded = refunds.reduce((sum, expense) => sum + expense.paid_cents, 0)
   const received = receivedGross - refunded
+  const otherIncome = ledger.filter(entry => entry.category === 'other_income').reduce((sum, entry) => sum + entry.amount_cents, 0)
   const outstanding = installments.reduce((sum, item) => sum + installmentOutstanding(item), 0)
   const overdue = installments.filter(item => item.due_on < reference).reduce((sum, item) => sum + installmentOutstanding(item), 0)
-  const cost = (property?.acquisition_cents || 0) + expenses.filter(expense => expense.category !== 'refund').reduce((sum, expense) => sum + expense.amount_cents, 0)
+  const cost = (property?.acquisition_cents || 0) + expenses.filter(expense => !['refund', 'acquisition'].includes(expense.category)).reduce((sum, expense) => sum + expense.amount_cents, 0)
   return { sales, installments, ledger, expenses, property, contracted, received, outstanding, overdue, cost,
-    forecast: activeSales.length ? contracted - cost : null, receivedGross, refunded, cancelledTotal, refundPending: payableTotals(refunds, reference).pending,
+    forecast: activeSales.length ? contracted - cost : null, receivedGross, refunded, cancelledTotal, otherIncome, refundPending: payableTotals(refunds, reference).pending,
     cash: ledgerTotals(ledger).result, payable: payableTotals(expenses, reference) }
 }
 export function csv(rows: (string | number)[][]) {

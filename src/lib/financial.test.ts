@@ -42,6 +42,23 @@ function fixture(): Data {
 const filters = { from: '', to: '', account: '', contact: '', property: '', segment: '', category: '', operation: '', search: '' }
 
 describe('fichas financeiras', () => {
+  it('conta aquisição uma vez e separa outras receitas de recebimentos de venda', () => {
+    const data = fixture()
+    data.expenses.push({ ...data.expenses[0], id: 'acquisition', category: 'acquisition', amount_cents: 30000, paid_cents: 15000, opening_paid_cents: 10000 })
+    data.ledger.push({ ...data.ledger[3], id: 'acquisition-payment', expense_id: 'acquisition', amount_cents: -5000 })
+    const income = { ...data.ledger[0], id: 'other-income', installment_id: null, category: 'other_income', contact_id: 'buyer', amount_cents: 2000 }
+    data.ledger.push(income)
+    data.ledger.push({ ...income, id: 'income-reversal', amount_cents: -500, reversal_of: 'other-income' })
+    const record = financialRecord(data, 'property', 'house')
+    expect(record.cost).toBe(60000)
+    expect(record.forecast).toBe(40000)
+    expect(record.received).toBe(10000)
+    expect(record.otherIncome).toBe(1500)
+    expect(record.cash).toBe(1500)
+    expect(record.payable.pending).toBe(40000)
+    expect(entryDetails(income, financialIndex(data)).contactId).toBe('buyer')
+    expect(financialRecord(data, 'client', 'buyer').otherIncome).toBe(1500)
+  })
   it('preserva recebimentos no distrato e desconta devoluções sem transformá-las em custo', () => {
     const data = fixture()
     data.sales[0].status = 'cancelled'
