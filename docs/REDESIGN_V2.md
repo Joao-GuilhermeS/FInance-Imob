@@ -100,3 +100,38 @@ duplicar obrigação de aquisição nem somar devoluções como custo de constru
   conserva a regra anterior (saldo mantido, cronograma mensal, sem novos ajustes).
 - Oitavo roteiro SQL cobre periodicidades, fim de mês, ajustes, idempotência e acesso;
   62 testes unitários. Prévia e formulário mobile verificados no navegador simulado.
+
+## Etapa 5 — validação e integração
+
+- Build de produção inspecionado em 17 rotas (16 módulos do menu + ficha), dois
+  temas e três larguras (375/768/1440): 102 combinações sem erro JavaScript nem
+  overflow horizontal da página. Tabelas extensas possuem rolagem interna.
+- Preferência inicial do sistema e persistência após recarregar aprovadas. Textos
+  principal/secundário e indicadores semânticos sobre superfície alcançaram 4,5:1
+  ou mais nos dois temas. Isso não substitui auditoria completa com leitores de tela.
+- PDF e Excel baixados também no preview do build de produção. PDFs de extrato e
+  recibo individual renderizados e inspecionados; XLSX reaberto com valores
+  numéricos, cabeçalho congelado e autofiltro. O recibo individual não aparece
+  para estornos ou recebimentos estornados. Demonstrativo consolidado preservado.
+- Ficha de fornecedor acessível pelo cadastro: obrigações e pagamentos/estornos em
+  seções separadas, com suas respectivas datas e exportações, sem somar custo e
+  pagamento como duas despesas. Moeda exibida em formato brasileiro.
+- Código principal dividido: aplicação ~70 kB, React ~219 kB e Supabase ~216 kB
+  minificados. ExcelJS ~929 kB permanece como chunk lazy, baixado apenas ao exportar;
+  o build mantém o aviso de tamanho desse arquivo, sem elevar o limite artificialmente.
+- GitHub Actions valida npm ci, lint, 62 testes, build e auditoria de dependências
+  em Node 24. Não executa SQL remoto e não publica aplicação automaticamente.
+- Supabase: health sem avisos; advisor security mantém proteção contra senhas vazadas
+  desativada (preexistente) e informação de RLS sem políticas na configuração privada,
+  intencionalmente inacessível. Migrações remotas e locais sincronizadas.
+- Testes de interface usam API simulada; regras financeiras foram testadas no banco
+  real em transações revertidas. Não equivalem a homologação com usuário real, teste
+  de carga, restauração de backup ou validação do envio de e-mails.
+
+### Fora desta entrega
+
+Estoque e WhatsApp adiados pelo responsável. Publicação, backup/restauração, retenção
+operacional de anexos, SMTP, notificações agendadas, integrações bancárias/Caixa e
+assinatura digital não foram implementados. O provisionamento global de novos perfis
+continua sujeito à configuração de contas gerenciadas documentada em ACESSO.md;
+esta entrega não altera essa configuração nem as credenciais de usuários existentes.
