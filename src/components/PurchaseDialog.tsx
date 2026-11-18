@@ -3,13 +3,13 @@ import { today } from '../lib/domain'
 import { rpc } from '../lib/api'
 import { purchaseCategories, purchaseValues } from '../lib/purchases'
 import { FormDialog } from './FormDialog'
-export function PurchaseDialog({ data, role, onClose, onSaved }: { data: Data; role: Role; onClose: () => void; onSaved: () => Promise<void> }) {
+export function PurchaseDialog({ data, role, onClose, onSaved, defaultCategory }: { data: Data; role: Role; onClose: () => void; onSaved: () => Promise<void>; defaultCategory?: string }) {
   return <FormDialog title="Registrar compra ou despesa" submitLabel="Registrar despesa" onClose={onClose} fields={[
     { name: 'description', label: 'O que foi comprado ou contratado?', type: 'textarea', section: 'Registro financeiro' },
     { name: 'amount', label: 'Valor total (R$)', type: 'number', min: '0.01', step: '0.01', section: 'Registro financeiro' },
     { name: 'purchased', label: 'Data da compra / contratação', type: 'date', value: today(), max: today(), section: 'Registro financeiro' },
     { name: 'due', label: 'Vencimento para pagamento', type: 'date', value: today(), section: 'Registro financeiro' },
-    { name: 'category', label: 'Categoria', value: 'materials', options: Object.entries(purchaseCategories).map(([value, label]) => ({ value, label })), section: 'Registro financeiro' },
+    { name: 'category', label: 'Categoria', value: defaultCategory || 'materials', options: Object.entries(purchaseCategories).map(([value, label]) => ({ value, label })), section: 'Registro financeiro' },
     { name: 'property', label: 'Imóvel / obra', required: role === 'works', hint: role === 'works' ? 'Selecione a obra relacionada.' : 'Sem vínculo: despesa geral da empresa.', options: data.properties.map(item => ({ value: item.id, label: `${item.code} · ${item.name}` })), section: 'Vínculos e detalhes opcionais' },
     { name: 'contact', label: 'Fornecedor / prestador', required: false, options: data.contacts.filter(item => ['supplier', 'provider'].includes(item.kind)).map(item => ({ value: item.id, label: item.name })), section: 'Vínculos e detalhes opcionais' },
     { name: 'classification', label: 'Classificação livre', required: false, maxLength: 80, hint: 'Ex.: cimento, cartório, frete ou comissão. Sem cadastro prévio.', section: 'Vínculos e detalhes opcionais' },

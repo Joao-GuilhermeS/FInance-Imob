@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import type { Data, Entry } from '../lib/domain'
 import { dateLabel, money } from '../lib/domain'
 import { entryDetails, financialCategories, financialIndex } from '../lib/financial'
+import { ReceiptButton } from './ReceiptButton'
 
 export function FinanceMetric({ label, value, note, accent = false }: { label: string; value: number; note: string; accent?: boolean }) {
   return <article className={accent ? 'stat accent' : 'stat'}><div className="stat-top">{label}</div><strong>{money(value)}</strong><small>{note}</small></article>
@@ -12,13 +13,13 @@ export function FinanceTable({ headers, children, empty }: { headers: string[]; 
 }
 export function LedgerTable({ entries, data, onReverse, onDocuments }: { entries: Entry[]; data: Data; onReverse?: (entry: Entry) => void; onDocuments?: (entry: Entry) => void }) {
   const index = financialIndex(data)
-  return <FinanceTable headers={['Data', 'Referente a quê?', 'Pessoa / imóvel', 'Conta', 'Valor', 'Situação', ...(onDocuments ? ['Comprovantes'] : [])]} empty={!entries.length ? 'Nenhuma movimentação encontrada' : undefined}>
+  return <FinanceTable headers={['Data', 'Referente a quê?', 'Pessoa / imóvel', 'Conta', 'Valor', 'Situação / recibo', ...(onDocuments ? ['Comprovantes'] : [])]} empty={!entries.length ? 'Nenhuma movimentação encontrada' : undefined}>
     {entries.map(entry => {
       const detail = entryDetails(entry, index)
       return <tr key={entry.id}><td>{dateLabel(entry.occurred_on)}</td><td><strong>{entry.description}</strong><small>{financialCategories[detail.category] || detail.category} · {entry.method}</small>{entry.notes ? <small>{entry.notes}</small> : null}</td>
         <td>{detail.contact?.name || 'Sem vínculo com pessoa'}<small>{detail.property ? `${detail.property.code} · ${detail.property.name}` : 'Despesas gerais da empresa'}</small></td>
-        <td>{detail.account?.name || 'Conta não localizada'}</td><td className={entry.amount_cents > 0 ? 'positive' : 'negative'}>{money(entry.amount_cents)}</td>
-        <td>{entry.reversal_of ? <span className="badge warning">Estorno</span> : detail.reversed ? <span className="badge neutral">Lançamento estornado</span> : onReverse && detail.canReverse ? <button className="small secondary" onClick={() => onReverse(entry)}>Estornar</button> : <span className="badge success">{detail.canReverse ? 'Confirmado' : 'Vinculado a acordo'}</span>}</td>{onDocuments ? <td><button className="small secondary" onClick={() => onDocuments(entry)}>Comprovantes</button></td> : null}
+        <td>{detail.account?.name || 'Conta não localizada'}</td><td className={entry.amount_cents > 0 ? 'positive' : 'negative'}>{entry.amount_cents > 0 ? '+' : ''}{money(entry.amount_cents)}</td>
+        <td><div className="row-actions">{entry.reversal_of ? <span className="badge warning">Estorno</span> : detail.reversed ? <span className="badge neutral">Lançamento estornado</span> : onReverse && detail.canReverse ? <button className="small secondary" onClick={() => onReverse(entry)}>Estornar</button> : <span className="badge success">{detail.canReverse ? 'Confirmado' : 'Vinculado a acordo'}</span>}{entry.amount_cents > 0 && !entry.reversal_of && !detail.reversed && ['sale', 'other_income'].includes(entry.category) ? <ReceiptButton entry={entry} data={data} /> : null}</div></td>{onDocuments ? <td><button className="small secondary" onClick={() => onDocuments(entry)}>Comprovantes</button></td> : null}
       </tr>
     })}
   </FinanceTable>

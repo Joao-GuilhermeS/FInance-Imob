@@ -13,12 +13,12 @@ function checkRegistryError(error: { code?: string; message: string } | null, ta
   throw new Error(error.message)
 }
 type Props = { role: Role; onClose: () => void; onSaved: () => Promise<void> }
-export function ContactDialog({ contact, hasSales = false, role, onClose, onSaved }: Props & { contact?: Contact; hasSales?: boolean }) {
+export function ContactDialog({ contact, hasSales = false, defaultKind, role, onClose, onSaved }: Props & { contact?: Contact; hasSales?: boolean; defaultKind?: string }) {
   const readOnly = Boolean(contact && !canEditContact(role))
   const choices = role === 'works' ? { supplier: 'Fornecedor', provider: 'Prestador' } : contactKinds
   const fields: Field[] = [
     { section: 'Dados básicos', name: 'name', label: 'Nome completo ou razão social', value: contact?.name },
-    { section: 'Dados básicos', name: 'kind', label: 'Tipo de cadastro', value: contact?.kind || (role === 'works' ? 'supplier' : 'client'), options: options(choices), readOnly: hasSales, hint: hasSales ? 'Cliente vinculado a uma venda.' : undefined },
+    { section: 'Dados básicos', name: 'kind', label: 'Tipo de cadastro', value: contact?.kind || defaultKind || (role === 'works' ? 'supplier' : 'client'), options: options(choices), readOnly: hasSales, hint: hasSales ? 'Cliente vinculado a uma venda.' : undefined },
     { section: 'Dados básicos', name: 'document', label: 'CPF ou CNPJ', value: contact?.document, required: false, maxLength: 20, hint: 'Opcional. A conferência verifica o formato; não consulta a Receita Federal.' },
     { section: 'Dados pessoais (quando aplicável)', name: 'rg', label: 'RG', value: contact?.rg, required: false, maxLength: 40 },
     { section: 'Dados pessoais (quando aplicável)', name: 'birth_date', label: 'Data de nascimento', value: contact?.birth_date || '', type: 'date', max: today(), required: false },
@@ -39,13 +39,13 @@ export function ContactDialog({ contact, hasSales = false, role, onClose, onSave
   }
   return <FormDialog title={readOnly ? 'Dados da pessoa' : contact ? 'Editar pessoa' : 'Cadastrar pessoa'} fields={readOnly ? fields.map(field => ({ ...field, readOnly: true })) : fields} onClose={onClose} onSave={save} submitLabel={readOnly ? 'Concluir' : 'Salvar'} />
 }
-export function PropertyDialog({ property, role, onClose, onSaved }: Props & { property?: Property }) {
+export function PropertyDialog({ property, defaultKind, role, onClose, onSaved }: Props & { property?: Property; defaultKind?: string }) {
   const readOnly = Boolean(property && !canEditProperty(role))
   const works = role === 'works'
   const fields: Field[] = works ? [] : [
     { section: 'Identificação do imóvel', name: 'code', label: 'Código do imóvel', value: property?.code, maxLength: 40, readOnly: Boolean(property), hint: property ? 'Identificação permanente do imóvel.' : undefined },
     { section: 'Identificação do imóvel', name: 'name', label: 'Nome do imóvel', value: property?.name },
-    { section: 'Identificação do imóvel', name: 'kind', label: 'Tipo de imóvel', value: property?.kind, readOnly: Boolean(property), options: options({ land: 'Terreno', house: 'Casa' }) },
+    { section: 'Identificação do imóvel', name: 'kind', label: 'Tipo de imóvel', value: property?.kind || defaultKind, readOnly: Boolean(property), options: options({ land: 'Terreno', house: 'Casa' }) },
     { section: 'Localização e medidas', name: 'development', label: 'Loteamento / empreendimento', value: property?.development, required: false },
     { section: 'Localização e medidas', name: 'block', label: 'Quadra', value: property?.block, required: false, maxLength: 40 },
     { section: 'Localização e medidas', name: 'lot', label: 'Número do lote', value: property?.lot, required: false, maxLength: 40 },
