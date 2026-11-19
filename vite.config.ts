@@ -2,7 +2,12 @@ import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ command }) => {
+  if (command === 'build' && process.env.VERCEL === '1') {
+    const missing = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_PUBLISHABLE_KEY'].filter(key => !process.env[key]?.trim())
+    if (missing.length) throw new Error(`Configure as variáveis do projeto Vercel antes do deploy: ${missing.join(', ')}`)
+  }
+  return {
   plugins: [react()],
   build: {
     rolldownOptions: {
@@ -16,4 +21,5 @@ export default defineConfig({
       },
     },
   },
+  }
 })

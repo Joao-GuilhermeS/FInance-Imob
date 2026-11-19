@@ -64,11 +64,11 @@ npm run preview
 - Organização retornada pela integração: `imob`.
 - Migrações aplicadas e versionadas em `supabase/migrations/`, com versões sincronizadas com o remoto.
 - Testes transacionais em `supabase/tests/` (oito scripts, incluindo financial_v2 e sale_schedule_options); executar por conexão administrativa confiável ou SQL Editor. Os scripts terminam em ROLLBACK e não deixam fixtures.
-- Somente desenvolvimento está configurado. Não há implantação pública, pipeline de deploy ou ambiente separado de homologação ainda. O GitHub Actions valida lint, testes e build, sem acesso ao banco remoto.
+- Produção: https://finance-imob.vercel.app, projeto Vercel `finance-imob`, vinculado à `main`. Configuração e validação em [docs/DEPLOY.md](docs/DEPLOY.md). Não há ambiente separado de homologação. O GitHub Actions valida lint, testes e build, sem acesso ao banco remoto.
 - Repositório: `Joao-GuilhermeS/FInance-Imob`. Autenticação Git local configurada; entregas publicadas na main por branches de escopo (`feat/` nesta entrega) e commits `feat`/`chore`. A integração GitHub pode negar criação de PR/merge; nesse caso, o Git local é utilizado sem force push.
 
 ## Escopo e próximos passos
 
-Consulte [docs/IMPLEMENTACAO.md](docs/IMPLEMENTACAO.md) para as regras, permissões, verificações e pendências do MVP. O histórico e a validação desta entrega estão em [docs/REDESIGN_V2.md](docs/REDESIGN_V2.md). Publicação e validação operacional continuam pendentes.
+Consulte [docs/IMPLEMENTACAO.md](docs/IMPLEMENTACAO.md) para as regras, permissões, verificações e pendências do MVP. O histórico e a validação desta entrega estão em [docs/REDESIGN_V2.md](docs/REDESIGN_V2.md). A publicação está configurada; backup/restauração e demais verificações operacionais continuam pendentes.
 
 [docs/DESIGN.md](docs/DESIGN.md) registra a direção visual da interface.
