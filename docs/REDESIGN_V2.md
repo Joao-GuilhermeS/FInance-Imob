@@ -160,3 +160,22 @@ esta entrega não altera essa configuração nem as credenciais de usuários exi
   Login simulado a partir de /financeiro abre /; deep link autenticado preservado.
 - Mudança de interface e navegação; não requer migração nem altera regras financeiras.
   Permanece o aviso conhecido de tamanho do chunk lazy de Excel, alheio a esta mudança.
+
+## Login — refinamento visual de 19/11/2026
+
+- Substituído o split-screen por painel centralizado de até 400 px, com superfície
+  Zinc neutra, borda fina, sombra discreta e textura radial quase imperceptível.
+  Tema escuro #09090B e equivalente claro; preferência e alternância preservadas.
+- Marca monocromática legível, título funcional e rodapé administrativo de 12 px.
+  Removidos painel promocional, frases motivacionais, escudo, lista e seta do botão.
+- Campos de 44 px, rótulos explícitos, foco visível, botão Entrar azul #2563EB com
+  texto branco e controle acessível para mostrar/ocultar senha. Alertas compactos
+  com ícone e superfície vermelha translúcida. CSS antigo de autenticação removido.
+- Autenticação, integração, credenciais e destino após login mantidos. Estado de
+  envio bloqueia controles e mostra progresso; falhas preservam os valores.
+- Build/lint e 62 testes aprovados. Navegador no preview de produção: Light/Dark
+  em 375/768/1440, painel centralizado sem overflow, foco, alternância de senha,
+  erro e carregamento. Auth simulado validou login a partir de /financeiro com
+  chegada ao Dashboard e manutenção de links internos autenticados.
+- Contrastes medidos: texto principal >=17,7:1; texto secundário >=5,5:1;
+  placeholder >=4,6:1; botão branco/azul 5,17:1. Não houve dependências novas.

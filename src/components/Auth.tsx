@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { ArrowRight, Building2, ShieldCheck } from 'lucide-react'
+import { AlertCircle, Building2, Eye, EyeOff, LoaderCircle } from 'lucide-react'
 import { configured, supabase } from '../lib/supabase'
 import { ThemeToggle } from './ThemeToggle'
 import { useNavigate } from 'react-router-dom'
@@ -9,6 +9,7 @@ export function Auth() {
   const navigate = useNavigate()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   async function login(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setBusy(true); setError('')
     const values = new FormData(event.currentTarget)
@@ -19,12 +20,21 @@ export function Auth() {
     } catch { setError('Não foi possível entrar. Confira seu e-mail, senha e conexão.'); }
     finally { setBusy(false) }
   }
-  return <main className="auth-page"><div className="auth-theme"><ThemeToggle /></div><section className="auth-story"><a className="brand" href="/"><span className="brand-symbol"><Building2 /></span>finance<span className="brand-light">imob</span></a>
-    <div><p className="eyebrow">GESTÃO IMOBILIÁRIA, CONECTADA.</p><h1>Mais clareza.<br />Melhores decisões.</h1><p>Da primeira venda ao resultado de cada obra.<br />Sua operação, em um só lugar.</p><div className="auth-lines"><span>01 <strong>Imóveis e vendas</strong></span><span>02 <strong>Parcelas e recebimentos</strong></span><span>03 <strong>Obras e resultados</strong></span></div></div>
-    <small>Organização financeira para construir o próximo passo.</small></section>
-    <section className="auth-form"><div className="login-card"><span className="login-icon"><ShieldCheck size={26} /></span><p className="eyebrow">SEU ESPAÇO DE GESTÃO</p><h2>Bem-vindo de volta</h2><p className="muted">Entre com seu acesso individual para continuar.</p>
-      {!configured ? <p className="notice error">Configure as variáveis do Supabase em .env.local para acessar.</p> : null}
-      <form onSubmit={login}><label>E-mail<input name="email" type="email" autoComplete="username" placeholder="voce@empresa.com.br" required /></label><label>Senha<input name="password" type="password" autoComplete="current-password" placeholder="Sua senha" required /></label>
-        {error ? <p role="alert" className="notice error">{error}</p> : null}<button className="wide" disabled={busy || !configured}>{busy ? 'Entrando…' : 'Acessar plataforma'}<ArrowRight size={18} /></button></form>
-      <p className="login-help">Seu acesso é fornecido pelo administrador.<br />Se precisar recuperar a senha, solicite ao responsável.</p></div><small className="auth-footer">Finance Imob · Gestão com precisão</small></section></main>
+  const notice = error || (!configured ? 'A conexão com o serviço de acesso não está configurada. Contate o administrador.' : '')
+  return <main className="auth-screen">
+    <div className="login-theme"><ThemeToggle /></div>
+    <div className="login-container">
+      <section className="login-panel" aria-labelledby="login-title">
+        <a className="login-brand" href={DEFAULT_ROUTE} aria-label="FinanceImob — início"><span className="login-brand-mark"><Building2 size={20} strokeWidth={1.7} aria-hidden="true" /></span><span>FinanceImob</span></a>
+        <header className="login-heading"><h1 id="login-title">Entrar no FinanceImob</h1><p>Insira suas credenciais corporativas para continuar.</p></header>
+        {notice ? <div className="login-notice" id="login-notice" role="alert"><AlertCircle size={17} aria-hidden="true" /><p>{notice}</p></div> : null}
+        <form className="login-form" onSubmit={login} aria-busy={busy} aria-describedby={notice ? 'login-notice' : undefined}>
+          <div className="login-field"><label htmlFor="login-email">E-mail</label><input id="login-email" name="email" type="email" autoComplete="username" autoCapitalize="none" spellCheck={false} placeholder="voce@empresa.com.br" required disabled={busy} /></div>
+          <div className="login-field"><label htmlFor="login-password">Senha</label><div className="login-password"><input id="login-password" name="password" type={showPassword ? 'text' : 'password'} autoComplete="current-password" required disabled={busy} /><button className="login-password-toggle" type="button" aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'} aria-pressed={showPassword} aria-controls="login-password" disabled={busy} onClick={() => setShowPassword(current => !current)}>{showPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}</button></div></div>
+          <button className="login-submit" type="submit" disabled={busy || !configured}>{busy ? <><LoaderCircle className="spin" size={16} aria-hidden="true" />Entrando…</> : 'Entrar'}</button>
+        </form>
+      </section>
+      <p className="login-access-note">Seu acesso é fornecido pelo administrador.<br />Para recuperar a senha, entre em contato com o responsável.</p>
+    </div>
+  </main>
 }
