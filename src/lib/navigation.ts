@@ -6,9 +6,10 @@ const all: Role[] = ['admin', 'finance', 'sales', 'works']
 const finance: Role[] = ['admin', 'finance']
 const commercial: Role[] = ['admin', 'finance', 'sales']
 const works: Role[] = ['admin', 'finance', 'works']
+export const DEFAULT_ROUTE = '/'
 export const navigationGroups = ['Visão geral', 'Imóveis e engenharia', 'Comercial e CRM', 'Financeiro', 'Administração']
 export const appRoutes: AppRoute[] = [
-  { path: '/', label: 'Dashboard principal', icon: LayoutDashboard, roles: all, group: navigationGroups[0] },
+  { path: DEFAULT_ROUTE, label: 'Dashboard', icon: LayoutDashboard, roles: all, group: navigationGroups[0] },
   { path: '/alertas', label: 'Central de notificações', icon: Bell, roles: finance, group: navigationGroups[0] },
   { path: '/terrenos', label: 'Terrenos', icon: Map, roles: all, group: navigationGroups[1], workspace: '/imoveis', propertyScope: 'land' },
   { path: '/casas', label: 'Casas e construções', icon: HardHat, roles: all, group: navigationGroups[1], workspace: '/imoveis', propertyScope: 'house', aliases: ['/obras'] },

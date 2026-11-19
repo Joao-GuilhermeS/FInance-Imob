@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
-import { Building2, ChevronDown, LogOut, X } from 'lucide-react'
+import { ArrowUpRight, Building2, ChevronDown, LayoutDashboard, LogOut, X } from 'lucide-react'
 import type { Profile } from '../lib/domain'
 import { useMobileNavigation } from '../lib/use-mobile-navigation'
-import { appRoutes, navigationGroups } from '../lib/navigation'
+import { appRoutes, DEFAULT_ROUTE, navigationGroups } from '../lib/navigation'
 export function Sidebar({ profile, open, onClose, onLogout }: { profile: Profile | null; open: boolean; onClose: () => void; onLogout: () => void }) {
   const [closed, setClosed] = useState<string[]>([])
   const ref = useRef<HTMLElement>(null)
@@ -31,8 +31,8 @@ export function Sidebar({ profile, open, onClose, onLogout }: { profile: Profile
   return <>
     <aside ref={ref} id="app-sidebar" className={`sidebar v2-sidebar ${open ? 'open' : ''}`} role={mobile ? 'dialog' : undefined} aria-modal={mobile && open ? true : undefined} aria-label="Navegação principal" aria-hidden={mobile && !open ? true : undefined} inert={mobile && !open}>
       <div className="sidebar-brand"><NavLink className="brand" to="/" onClick={onClose}><span className="brand-symbol"><Building2 size={21} aria-hidden="true" /></span>finance<span className="brand-light">imob</span><span className="brand-version">GESTÃO</span></NavLink><button className="mobile-close icon-button" onClick={onClose} aria-label="Fechar menu"><X size={21} aria-hidden="true" /></button></div>
-      <nav aria-label="Menu principal">{navigationGroups.map((group, index) => {
-        const items = appRoutes.filter(item => item.group === group && profile && item.roles.includes(profile.role))
+      <nav aria-label="Menu principal"><NavLink to={DEFAULT_ROUTE} end className={({ isActive }) => `dashboard-home-link${isActive ? ' active' : ''}`} onClick={onClose}><span className="dashboard-home-icon"><LayoutDashboard size={21} aria-hidden="true" /></span><span><strong>Dashboard</strong><small>Painel principal</small></span><ArrowUpRight size={16} aria-hidden="true" /></NavLink>{navigationGroups.map((group, index) => {
+        const items = appRoutes.filter(item => item.path !== DEFAULT_ROUTE && item.group === group && profile && item.roles.includes(profile.role))
         if (!items.length) return null
         const expanded = !closed.includes(group)
         return <section className="nav-group" key={group}><button className="nav-group-toggle" aria-expanded={expanded} aria-controls={`nav-group-${index}`} onClick={() => setClosed(current => current.includes(group) ? current.filter(item => item !== group) : [...current, group])}><span>{group}</span><ChevronDown size={13} className={expanded ? '' : 'collapsed'} aria-hidden="true" /></button><div id={`nav-group-${index}`} hidden={!expanded}>{items.map(item => {
