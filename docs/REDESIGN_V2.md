@@ -135,3 +135,28 @@ operacional de anexos, SMTP, notificações agendadas, integrações bancárias/
 assinatura digital não foram implementados. O provisionamento global de novos perfis
 continua sujeito à configuração de contas gerenciadas documentada em ACESSO.md;
 esta entrega não altera essa configuração nem as credenciais de usuários existentes.
+
+## Dashboard principal — refinamento de 19/11/2026
+
+- Dashboard permanece na rota raiz e passa a ser o destino após login bem-sucedido,
+  mesmo quando a tela de login foi aberta em outra rota. Links internos de sessões
+  já autenticadas continuam funcionando. Destinos inválidos retornam ao Dashboard.
+- Atalho exclusivo, primeiro e destacado no menu, independente dos grupos recolhíveis;
+  mesmo comportamento no drawer mobile. Título e breadcrumb padronizados como Dashboard.
+- Grid com intervalos de 20–28 px, cards de 16 px, sombras discretas, saldo principal
+  com fundo executivo, resultado com superfície de destaque e números tabulares maiores.
+  Indicadores secundários, painéis setoriais e listas mantêm hierarquia consistente.
+- Gráfico de caixa com área maior, escala de valores arredondada, zero identificado,
+  rótulos de datas espaçados conforme a largura e precisão para valores em centavos.
+  Legenda distingue barras e linha; seleção por mouse/toque/teclado e tabela preservadas.
+  Rosca maior e legenda com alvos de 44 px. Mobile sem rótulos fragmentados ou descrições
+  cortadas nas movimentações. Nenhuma biblioteca ou dependência adicionada.
+- Skill UI/UX: aplicadas recomendações pertinentes de espaçamento de alvos e reflow.
+  Duas buscas de gráficos não encontraram recomendação específica adequada; mantido
+  o gráfico temporal existente, com melhorias baseadas nas diretrizes gerais da skill.
+- Build e lint aprovados; 62 testes existentes passam. Preview de produção com API
+  simulada: Light/Dark em 375/768/1440/1920 px, sem overflow ou KPIs cortados; filtros,
+  caixa, foco do gráfico, tabela acessível, menu recolhível e drawer conferidos.
+  Login simulado a partir de /financeiro abre /; deep link autenticado preservado.
+- Mudança de interface e navegação; não requer migração nem altera regras financeiras.
+  Permanece o aviso conhecido de tamanho do chunk lazy de Excel, alheio a esta mudança.

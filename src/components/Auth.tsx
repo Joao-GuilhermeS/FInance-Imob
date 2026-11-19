@@ -3,7 +3,10 @@ import type { FormEvent } from 'react'
 import { ArrowRight, Building2, ShieldCheck } from 'lucide-react'
 import { configured, supabase } from '../lib/supabase'
 import { ThemeToggle } from './ThemeToggle'
+import { useNavigate } from 'react-router-dom'
+import { DEFAULT_ROUTE } from '../lib/navigation'
 export function Auth() {
+  const navigate = useNavigate()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   async function login(event: FormEvent<HTMLFormElement>) {
@@ -12,6 +15,7 @@ export function Auth() {
     try {
       const { error: failure } = await supabase.auth.signInWithPassword({ email: String(values.get('email')).trim(), password: String(values.get('password')) })
       if (failure) throw failure
+      navigate(DEFAULT_ROUTE, { replace: true })
     } catch { setError('Não foi possível entrar. Confira seu e-mail, senha e conexão.'); }
     finally { setBusy(false) }
   }
