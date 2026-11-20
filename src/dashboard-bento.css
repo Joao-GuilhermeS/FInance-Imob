@@ -90,3 +90,58 @@
   .bento-summary .balance-card { min-height: 200px; }
   .bento-chart.chart-panel { min-height: 360px; }.bento-chart .panel-heading p,.bento-chart .chart-interaction-hint { display: none; }
 }
+
+/* Glass volume: theme-specific material, with unchanged front-face geometry. */
+.bento-chart {
+  --bento-bg: #f8faff;
+  --bento-text: #182238;
+  --bento-muted: #52617a;
+  --bento-border: rgba(66,83,125,.14);
+  --bento-line: #4338ca;
+  --flow-income-top: #2563eb;
+  --flow-income-bottom: #4f46e5;
+  --flow-outcome-top: #8b5cf6;
+  --flow-outcome-bottom: #64748b;
+  --flow-grid: rgba(66,83,125,.09);
+  --flow-baseline: rgba(66,83,125,.25);
+  --flow-tooltip: rgba(255,255,255,.87);
+  --flow-shadow: rgba(49,46,129,.14);
+  --flow-glow: rgba(99,102,241,.18);
+}
+:root[data-theme=dark] .bento-chart {
+  --bento-bg: #101322;
+  --bento-text: #f1f5ff;
+  --bento-muted: #a8b5cf;
+  --bento-border: rgba(165,180,252,.13);
+  --bento-line: #e0e7ff;
+  --flow-income-top: #67e8f9;
+  --flow-income-bottom: #6366f1;
+  --flow-outcome-top: #c4b5fd;
+  --flow-outcome-bottom: #8b5cf6;
+  --flow-grid: rgba(165,180,252,.065);
+  --flow-baseline: rgba(199,210,254,.2);
+  --flow-tooltip: rgba(16,19,34,.86);
+  --flow-shadow: rgba(0,0,0,.38);
+  --flow-glow: rgba(103,232,249,.23);
+}
+.bento-chart.chart-panel { background: radial-gradient(ellipse at 85% 0%,color-mix(in srgb,var(--flow-income-top) 7%,transparent),transparent 60%),var(--bento-bg); box-shadow: 0 12px 32px var(--flow-shadow),inset 0 1px rgba(255,255,255,.08); }
+.bento-chart::after { border-color: color-mix(in srgb,var(--flow-income-top) 7%,transparent); box-shadow: 0 0 0 42px color-mix(in srgb,var(--flow-income-top) 2%,transparent); }
+.bento-chart .bento-live { color: var(--bento-muted); background: color-mix(in srgb,var(--flow-income-top) 7%,transparent); border-color: var(--bento-border); }.bento-chart .bento-live i { background: var(--flow-income-top); }
+.bento-chart .legend-dot.revenue { background: linear-gradient(var(--flow-income-top),var(--flow-income-bottom)); }.bento-chart .legend-dot.expense { background: linear-gradient(var(--flow-outcome-top),var(--flow-outcome-bottom)); }
+.bento-chart .chart-gridline { stroke: var(--flow-grid); }.bento-chart .chart-baseline { stroke: var(--flow-baseline); }
+.bento-chart .bar-volume { filter: drop-shadow(2px 6px 4px var(--flow-shadow)) drop-shadow(0 0 5px var(--flow-glow)); }
+.bento-chart .bar-back { fill: none; stroke: var(--flow-income-top); stroke-opacity: .23; stroke-width: .7; }
+.bento-chart .bar-reflection { opacity: .65; }
+.bento-chart .bar-front { stroke: var(--flow-income-top); stroke-opacity: .75; stroke-width: .8; }
+.bento-chart .bar-side { fill: var(--flow-income-bottom); fill-opacity: .3; stroke: var(--flow-income-top); stroke-opacity: .2; stroke-width: .5; }
+.bento-chart .bar-cap { fill: var(--flow-income-top); fill-opacity: .42; stroke: var(--flow-income-top); stroke-opacity: .7; stroke-width: .6; }
+.bento-chart .volume-outcome .bar-front,.bento-chart .volume-outcome .bar-back { stroke: var(--flow-outcome-top); }.bento-chart .volume-outcome .bar-side { fill: var(--flow-outcome-bottom); stroke: var(--flow-outcome-top); }.bento-chart .volume-outcome .bar-cap { fill: var(--flow-outcome-top); stroke: var(--flow-outcome-top); }
+.bento-chart .bar-highlight { stroke: color-mix(in srgb,var(--flow-income-top) 35%,white); stroke-opacity: .95; }
+.bento-chart .chart-group.is-selected .bar-volume { filter: brightness(1.12) drop-shadow(2px 8px 5px var(--flow-shadow)) drop-shadow(0 0 9px var(--flow-glow)); }
+.bento-chart .chart-group.is-selected .bar-front { stroke-width: 1.2; stroke-opacity: 1; }.bento-chart .chart-group.is-selected .bar-reflection { opacity: .85; }
+.bento-chart .chart-group.is-selected > rect:first-child { fill: color-mix(in srgb,var(--flow-income-top) 5%,transparent); stroke: color-mix(in srgb,var(--flow-income-top) 25%,transparent); }
+.bento-chart .chart-group:focus-visible > rect:first-child { stroke: var(--bento-line); stroke-width: 1.5; }
+.bento-chart .chart-result-line { filter: drop-shadow(0 2px 5px var(--flow-glow)); }.bento-chart .chart-result-dot { fill: var(--bento-bg); }
+.bento-chart .bento-tooltip { color: var(--bento-text); background: var(--flow-tooltip); border-color: var(--bento-border); backdrop-filter: blur(20px) saturate(140%); box-shadow: 0 12px 32px var(--flow-shadow),inset 0 1px rgba(255,255,255,.12); }
+.bento-tooltip > strong,.bento-tooltip dd { color: var(--bento-text); }.bento-tooltip dt { color: var(--bento-muted); }.bento-tooltip dl > div:last-child { border-color: var(--bento-border); }
+.bento-chart .chart-data th { color: var(--bento-text); background: color-mix(in srgb,var(--flow-income-top) 4%,transparent); }.bento-chart .chart-data td { color: var(--bento-muted); }

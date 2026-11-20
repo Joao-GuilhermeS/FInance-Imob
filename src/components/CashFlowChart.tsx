@@ -6,15 +6,17 @@ import type { CashBucket } from '../lib/dashboard'
 const compact = (cents: number) => new Intl.NumberFormat('pt-BR', Math.abs(cents) < 1000 ? { maximumFractionDigits: 2 } : { notation: 'compact', maximumFractionDigits: 1 }).format(cents / 100)
 const signed = (cents: number) => `${cents >= 0 ? '+' : '−'} ${money(Math.abs(cents))}`
 
-function VolumeBar({ x, y, width, height, gradient, negative = false }: { x: number; y: number; width: number; height: number; gradient: string; negative?: boolean }) {
+function VolumeBar({ x, y, width, height, gradient, reflection, negative = false }: { x: number; y: number; width: number; height: number; gradient: string; reflection: string; negative?: boolean }) {
   if (!height) return null
-  const depth = Math.min(3, width * .22)
+  const depth = Math.min(4, width * .28)
   const offset = negative ? depth : -depth
   const cap = negative ? y + height : y
   return <g className={`bar-volume ${negative ? 'volume-outcome' : 'volume-income'}`} aria-hidden="true">
+    <rect x={x + depth} y={y + offset} width={width} height={height} rx="2" className="bar-back" />
     <polygon points={`${x + width},${y} ${x + width + depth},${y + offset} ${x + width + depth},${y + height + offset} ${x + width},${y + height}`} className="bar-side" />
     <polygon points={`${x},${cap} ${x + depth},${cap + offset} ${x + width + depth},${cap + offset} ${x + width},${cap}`} className="bar-cap" />
-    <rect x={x} y={y} width={width} height={height} rx="2" fill={`url(#${gradient})`} />
+    <rect x={x} y={y} width={width} height={height} rx="2" fill={`url(#${gradient})`} className="bar-front" />
+    <rect x={x + .5} y={y + .5} width={Math.max(0, width - 1)} height={Math.max(0, height - 1)} rx="2" fill={`url(#${reflection})`} className="bar-reflection" />
     <line x1={x + 1} x2={x + width - 1} y1={y + .5} y2={y + .5} className="bar-highlight" />
   </g>
 }
@@ -22,7 +24,7 @@ function VolumeBar({ x, y, width, height, gradient, negative = false }: { x: num
 export function CashFlowChart({ buckets }: { buckets: CashBucket[] }) {
   const [selected, setSelected] = useState<number | null>(null)
   const id = useId().replace(/:/g, '')
-  const incomeGradient = `${id}-income`, outcomeGradient = `${id}-outcome`
+  const incomeGradient = `${id}-income`, outcomeGradient = `${id}-outcome`, reflectionGradient = `${id}-reflection`
   const hasEntries = buckets.some(item => item.income || item.outcome)
   const canvas = useRef<HTMLDivElement>(null)
   const [canvasWidth, setCanvasWidth] = useState(760)
@@ -55,8 +57,9 @@ export function CashFlowChart({ buckets }: { buckets: CashBucket[] }) {
       <div className="chart-canvas" ref={canvas}>
         <svg viewBox={`0 0 ${canvasWidth} 250`} role="group" aria-label="Gráfico de fluxo de caixa. Consulte os valores por intervalo com Tab ou na tabela de dados.">
           <defs>
-            <linearGradient id={incomeGradient} x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stopColor="#6366F1" /><stop offset="100%" stopColor="#2563EB" /></linearGradient>
-            <linearGradient id={outcomeGradient} x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stopColor="#94A3B8" /><stop offset="100%" stopColor="#4F46E5" /></linearGradient>
+            <linearGradient id={incomeGradient} x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stopColor="var(--flow-income-top)" stopOpacity=".88" /><stop offset="45%" stopColor="var(--flow-income-bottom)" stopOpacity=".58" /><stop offset="100%" stopColor="var(--flow-income-bottom)" stopOpacity=".22" /></linearGradient>
+            <linearGradient id={outcomeGradient} x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stopColor="var(--flow-outcome-top)" stopOpacity=".8" /><stop offset="55%" stopColor="var(--flow-outcome-bottom)" stopOpacity=".48" /><stop offset="100%" stopColor="var(--flow-outcome-bottom)" stopOpacity=".16" /></linearGradient>
+            <linearGradient id={reflectionGradient} x1="0" x2="1" y1="0" y2="0"><stop offset="0%" stopColor="#ffffff" stopOpacity=".02" /><stop offset="24%" stopColor="#ffffff" stopOpacity=".36" /><stop offset="45%" stopColor="#ffffff" stopOpacity=".08" /><stop offset="100%" stopColor="#ffffff" stopOpacity="0" /></linearGradient>
           </defs>
           {ticks.map(value => <g key={value}><line x1="60" x2={canvasWidth - 20} y1={scale(value)} y2={scale(value)} className="chart-gridline" /><text x="48" y={scale(value) + 4} textAnchor="end" className="chart-axis">{compact(value)}</text></g>)}
           <line x1="60" x2={canvasWidth - 20} y1={baseline} y2={baseline} className="chart-baseline" />
@@ -64,8 +67,8 @@ export function CashFlowChart({ buckets }: { buckets: CashBucket[] }) {
             const x = 65 + index * width
             return <g key={item.from} tabIndex={0} role="img" aria-label={`${dateLabel(item.from)} a ${dateLabel(item.to)}: entradas ${money(item.income)}, saídas ${money(item.outcome)}, resultado ${money(item.result)}`} onPointerEnter={event => { if (event.pointerType === 'mouse') setSelected(index) }} onPointerLeave={event => { if (event.pointerType === 'mouse' && document.activeElement !== event.currentTarget) setSelected(null) }} onFocus={() => setSelected(index)} onBlur={() => setSelected(null)} className={`chart-group${selected === index ? ' is-selected' : ''}`} onClick={() => setSelected(index)} onKeyDown={event => { if (event.key === 'Escape') setSelected(null); if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setSelected(index) } }}>
               <rect x={x - 4} y="12" width={width - 4} height="204" fill="transparent" />
-              <VolumeBar x={x} y={scale(item.income)} width={bar} height={Math.max(item.income ? 1 : 0, baseline - scale(item.income))} gradient={incomeGradient} />
-              <VolumeBar x={x + bar + 4} y={baseline} width={bar} height={Math.max(item.outcome ? 1 : 0, scale(-item.outcome) - baseline)} gradient={outcomeGradient} negative />
+              <VolumeBar x={x} y={scale(item.income)} width={bar} height={Math.max(item.income ? 1 : 0, baseline - scale(item.income))} gradient={incomeGradient} reflection={reflectionGradient} />
+              <VolumeBar x={x + bar + 4} y={baseline} width={bar} height={Math.max(item.outcome ? 1 : 0, scale(-item.outcome) - baseline)} gradient={outcomeGradient} reflection={reflectionGradient} negative />
               {(index === buckets.length - 1 || index % labelStep === 0 && index < buckets.length - 1 - labelStep / 2) ? <text x={x + bar} y="237" textAnchor="middle" className="chart-axis">{item.label}</text> : null}
             </g>
           })}

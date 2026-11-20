@@ -204,3 +204,15 @@ esta entrega não altera essa configuração nem as credenciais de usuários exi
 - A busca UI/UX confirmou orientação de não depender só de hover e manter feedback
   interativo. Valores e filtros usam o mesmo executiveSummary existente. Não há
   mudanças no banco, nas permissões ou nas regras de recebimento/pagamento.
+
+## Material translúcido e temas do gráfico — 20/11/2026
+
+- Barras com preenchimento translúcido em três estágios, face posterior aparente,
+  reflexo vertical, bordas iluminadas, volume lateral e glow adaptado ao tema.
+  O efeito é decorativo; escala, valores e limites da face frontal são preservados.
+- Gráfico claro com superfície gelo e séries azul/violeta; gráfico escuro com
+  superfície profunda e séries ciano/lavanda. Eixos, legenda, linha de resultado,
+  tabela e tooltip também se adaptam. Card de saldo mantém sua identidade escura.
+- Preview com API simulada: temas diferentes confirmados em 375/1440 px, sem
+  overflow; tooltip com blur, foco/Escape, filtro de segmento e período vazio.
+  Build/lint e 62 testes aprovados. Nenhuma dependência ou regra financeira nova.
