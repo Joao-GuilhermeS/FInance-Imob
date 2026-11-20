@@ -179,3 +179,28 @@ esta entrega não altera essa configuração nem as credenciais de usuários exi
   chegada ao Dashboard e manutenção de links internos autenticados.
 - Contrastes medidos: texto principal >=17,7:1; texto secundário >=5,5:1;
   placeholder >=4,6:1; botão branco/azul 5,17:1. Não houve dependências novas.
+
+## Dashboard bento e gráfico volumétrico — 20/11/2026
+
+- Topo reorganizado em 12 colunas com gap de 24 px: coluna 4/12 com saldo e
+  dois mini-cards de entradas/saídas; gráfico em 8/12, alinhado no topo e na base.
+  O layout lado a lado inicia em 1280 px para respeitar o espaço ocupado pelo menu.
+  Em tablet/mobile, a ordem visual é saldo, gráfico e mini-cards. Resultado de
+  caixa permanece no resumo de carteira abaixo; nenhum indicador foi removido.
+- Saldo, mini-cards e gráfico compartilham superfície #121321, bordas sutis,
+  anéis de baixa opacidade, números tabulares e contraste independente do tema.
+  Filtros compactados em telas baixas; bloco integral medido na primeira dobra
+  em 1280x640, 1280x720, 1366x650, 1366x768, 1440x900 e 1920x1080.
+- Gráfico em SVG com gradientes Royal/Índigo e Slate/Violeta, faces laterais/capas,
+  filete luminoso e sombras. Mantém projeção cartesiana e escala monetária; o volume
+  é decorativo. Hover eleva os elementos 2 px; reduced-motion remove essa elevação.
+- Tooltip flutuante translúcido, consulta por mouse/clique/foco, Escape e tabela
+  acessível preservados. IDs de gradiente exclusivos por instância. O componente
+  foi separado em CashFlowChart.tsx, sem adicionar dependências ou alterar consultas.
+- Build/lint e 62 testes aprovados. Preview com API simulada: 14 combinações de
+  tema/viewport, alinhamento, ausência de overflow e valores cortados; alturas
+  compactas adicionais; filtros de período/segmento, vazio, data inválida,
+  resolução dos gradientes, teclado, Escape, clique e preferência de movimento.
+- A busca UI/UX confirmou orientação de não depender só de hover e manter feedback
+  interativo. Valores e filtros usam o mesmo executiveSummary existente. Não há
+  mudanças no banco, nas permissões ou nas regras de recebimento/pagamento.

@@ -1,50 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { BarChart3 } from 'lucide-react'
-import { dateLabel, money } from '../lib/domain'
-import type { CashBucket } from '../lib/dashboard'
-const compact = (cents: number) => new Intl.NumberFormat('pt-BR', Math.abs(cents) < 1000 ? { maximumFractionDigits: 2 } : { notation: 'compact', maximumFractionDigits: 1 }).format(cents / 100)
-const signed = (cents: number) => `${cents >= 0 ? '+' : '−'} ${money(Math.abs(cents))}`
-export function CashFlowChart({ buckets }: { buckets: CashBucket[] }) {
-  const [selected, setSelected] = useState<number | null>(null)
-  const hasEntries = buckets.some(item => item.income || item.outcome)
-  const canvas = useRef<HTMLDivElement>(null)
-  const [canvasWidth, setCanvasWidth] = useState(760)
-  useEffect(() => {
-    if (!canvas.current) return
-    const observer = new ResizeObserver(entries => { for (const entry of entries) setCanvasWidth(Math.max(280, Math.floor(entry.contentRect.width))) })
-    observer.observe(canvas.current)
-    return () => observer.disconnect()
-  }, [hasEntries])
-  const active = selected === null ? undefined : buckets[selected]
-  const rawMax = Math.max(1, ...buckets.flatMap(item => [item.income, item.result]))
-  const rawMin = Math.min(0, ...buckets.flatMap(item => [-item.outcome, item.result]))
-  const roughStep = (rawMax - rawMin) / 4
-  const power = 10 ** Math.floor(Math.log10(roughStep))
-  const unit = roughStep / power
-  const step = Math.max(1, (unit <= 1 ? 1 : unit <= 2 ? 2 : unit <= 5 ? 5 : 10) * power)
-  const max = Math.ceil(rawMax / step) * step
-  const min = Math.floor(rawMin / step) * step
-  const ticks = Array.from({ length: Math.round((max - min) / step) + 1 }, (_, i) => max - i * step)
-  const scale = (value: number) => 20 + (max - value) / (max - min) * 210
-  const baseline = scale(0)
-  const width = (canvasWidth - 90) / Math.max(buckets.length, 1)
-  const labelStep = Math.max(1, Math.ceil((buckets.length - 1) / Math.max(1, Math.floor((canvasWidth - 90) / 68) - 1)))
-  return <section className="panel chart-panel"><div className="panel-heading"><div><h2>Fluxo de caixa</h2><p>Entradas, saídas e resultado ao longo do período</p></div><span className="badge info">Realizado</span></div><div className="chart-legend"><span className="chart-unit">Valores em R$</span><span><i className="legend-dot revenue" />+ Entradas</span><span><i className="legend-dot expense" />− Saídas</span><span><i className="legend-dot result" />Resultado</span></div>
-    {!hasEntries ? <div className="chart-empty"><BarChart3 size={30} aria-hidden="true" /><strong>Sem movimentações neste período</strong><p>Os lançamentos confirmados aparecerão aqui.</p></div> : <div className="cash-chart"><div className="chart-canvas" ref={canvas}><svg viewBox={`0 0 ${canvasWidth} 270`} role="group" aria-label="Gráfico de fluxo de caixa. Consulte os valores por intervalo com Tab ou na tabela de dados.">
-      {ticks.map(value => <g key={value}><line x1="60" x2={canvasWidth - 20} y1={scale(value)} y2={scale(value)} className="chart-gridline" /><text x="48" y={scale(value) + 4} textAnchor="end" className="chart-axis">{compact(value)}</text></g>)}
-      <line x1="60" x2={canvasWidth - 20} y1={baseline} y2={baseline} className="chart-baseline" />
-      {buckets.map((item, index) => { const x = 65 + index * width; const bar = Math.min(18, width * .28); return <g key={item.from} tabIndex={0} role="img" aria-label={`${dateLabel(item.from)} a ${dateLabel(item.to)}: entradas ${money(item.income)}, saídas ${money(item.outcome)}, resultado ${money(item.result)}`} onMouseEnter={() => setSelected(index)} onMouseLeave={() => setSelected(null)} onFocus={() => setSelected(index)} onBlur={() => setSelected(null)} className={`chart-group${selected === index ? ' is-selected' : ''}`} onClick={() => setSelected(index)} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setSelected(index) } }}>
-        <rect x={x - 4} y="16" width={width - 4} height="220" fill="transparent" />
-        <rect x={x} y={scale(item.income)} width={bar} height={Math.max(item.income ? 2 : 0, baseline - scale(item.income))} rx="3" className="chart-income" />
-        <rect x={x + bar + 3} y={baseline} width={bar} height={Math.max(item.outcome ? 2 : 0, scale(-item.outcome) - baseline)} rx="3" className="chart-outcome" />
-        {(index === buckets.length - 1 || index % labelStep === 0 && index < buckets.length - 1 - labelStep / 2) ? <text x={x + bar} y="258" textAnchor="middle" className="chart-axis">{item.label}</text> : null}
-      </g> })}
-      <polyline points={buckets.map((item, index) => `${65 + index * width + Math.min(18, width * .28)},${scale(item.result)}`).join(' ')} className="chart-result-line" />
-      {buckets.map((item, index) => <circle key={item.from} cx={65 + index * width + Math.min(18, width * .28)} cy={scale(item.result)} r={selected === index ? 5 : 3} className="chart-result-dot" />)}
-    </svg></div><div className="chart-tooltip" aria-live="polite">{active ? <><strong>{dateLabel(active.from)}–{dateLabel(active.to)}</strong><span className="positive">Entradas {signed(active.income)}</span><span className="negative">Saídas − {money(active.outcome)}</span><span>Resultado {signed(active.result)}</span></> : <span>Selecione um intervalo com o mouse, toque ou teclado para ver os valores.</span>}</div></div>}
-    <details className="chart-data"><summary>Ver dados do gráfico</summary><div className="table-wrap"><table><thead><tr><th scope="col">Intervalo</th><th scope="col">+ Entradas</th><th scope="col">− Saídas</th><th scope="col">Resultado</th></tr></thead><tbody>{buckets.map(item => <tr key={item.from}><td>{dateLabel(item.from)}–{dateLabel(item.to)}</td><td>{signed(item.income)}</td><td>− {money(item.outcome)}</td><td>{signed(item.result)}</td></tr>)}</tbody></table></div></details>
-  </section>
-}
+import { money } from '../lib/domain'
+export { CashFlowChart } from './CashFlowChart'
 const colors = ['var(--color-accent)', 'var(--info)', 'var(--warning)', 'var(--positive)', 'var(--negative)', 'var(--text-secondary)', 'var(--chart-extra)']
 export function ExpenseDonut({ items }: { items: { label: string; value: number }[] }) {
   const [selected, setSelected] = useState<number | null>(null)
