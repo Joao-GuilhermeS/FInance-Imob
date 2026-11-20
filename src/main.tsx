@@ -15,4 +15,5 @@ createRoot(document.getElementById('root')!).render(
 import './commercial.css'
 import './layout.css'
 import './dashboard.css'
+import './dashboard-bento.css'
 import './auth.css'
