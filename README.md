@@ -20,6 +20,10 @@ O menu **Compras e despesas** registra o que foi comprado/contratado, o valor e 
 
 No **Financeiro**, use **Receber outra receita** para entradas sem venda/parcela. A seção **Pagamentos de aquisição de imóveis** permite iniciar o controle do pagamento de cada imóvel com custo positivo: informe explicitamente quanto já foi pago antes do controle e confira o saldo inicial. A abertura não movimenta caixa nem duplica custo; os pagamentos seguintes podem ser parciais e estornados pelo extrato.
 
+## Manual de uso
+
+Consulte o [Guia do usuário em PDF](docs/FinanceImob-Manual-do-Usuario.pdf) ou a [versão editável em Markdown](docs/GUIA_DO_USUARIO.md) para conhecer cada tela, seus componentes e os procedimentos de operação.
+
 ## Executar
 
 Requer Node.js 24 e npm.
