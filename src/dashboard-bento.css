@@ -49,6 +49,7 @@
 .bar-highlight { stroke: rgba(224, 231, 255, .75); stroke-width: 1; }
 .bento-chart .chart-group { cursor: pointer; }
 .bento-chart .chart-group.is-selected > rect:first-child,.bento-chart .chart-group:focus-visible > rect:first-child { fill: rgba(129, 140, 248, .055); stroke: rgba(165, 180, 252, .28); stroke-width: 1; rx: 4; }
+.bento-chart .chart-group:focus-visible > rect:first-child { stroke: #a5b4fc; stroke-width: 1.5; }
 .bento-chart .chart-group.is-selected .bar-volume { transform: translateY(-2px); filter: brightness(1.2) drop-shadow(2px 7px 5px rgba(0, 0, 0, .4)); }
 .bento-chart .chart-result-line { stroke: var(--bento-line); stroke-width: 2; filter: drop-shadow(0 2px 4px rgba(165, 180, 252, .22)); }
 .bento-chart .chart-result-dot { fill: #121321; stroke: var(--bento-line); stroke-width: 1.5; }
