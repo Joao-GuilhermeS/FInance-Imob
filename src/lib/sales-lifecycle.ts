@@ -2,7 +2,7 @@ import { cents, installmentOutstanding, today } from './domain'
 import type { Data, Sale } from './domain'
 import { FieldErrors } from './form-errors'
 export const saleIsActive = (sale: Sale) => sale.status !== 'cancelled'
-export const eventLabels: Record<string, string> = { reserve: 'Reserva registrada', release: 'Reserva liberada', convert: 'Reserva convertida em venda', renegotiate: 'Parcelas renegociadas', cancel: 'Venda cancelada' }
+export const eventLabels: Record<string, string> = { reserve: 'Reserva registrada', release: 'Reserva liberada', convert: 'Reserva convertida em venda', renegotiate: 'Parcelas renegociadas', cancel: 'Venda cancelada', edit: 'Venda editada' }
 export function saleBalances(data: Data, saleId: string) {
   const items = data.installments.filter(item => item.sale_id === saleId)
   return { received: items.reduce((sum, item) => sum + item.received_cents, 0), outstanding: items.reduce((sum, item) => sum + installmentOutstanding(item), 0) }
