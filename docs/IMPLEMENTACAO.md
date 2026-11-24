@@ -74,6 +74,29 @@ WhatsApp automático, integração bancária, integração técnica com a Caixa 
 
 ## Verificação
 
+### Edição e remoção de vendas — 24/11/2026
+
+Em Vendas e contratos, **Editar venda** permite corrigir cliente, valor base,
+ajustes fixos, entrada, periodicidade, quantidade de parcelas e datas, com
+justificativa. Administrador, Financeiro e Vendas podem editar vendas ativas
+sem movimentações financeiras nem acordo de renegociação. O imóvel permanece
+fixo: para corrigir o imóvel, cancelar e registrar outra venda.
+
+Cada edição cancela o cronograma anterior, preserva suas parcelas, cria uma
+nova versão e registra os valores anteriores e novos no histórico/auditoria.
+O servidor bloqueia edição após recebimentos, inclusive quando estornados,
+e rejeita versões desatualizadas. Repetir a mesma solicitação não duplica parcelas.
+
+**Remover / distrato**, disponível para Administrador e Financeiro, é um
+cancelamento justificado, sem exclusão física. Sem saldo recebido, exige
+justificativa e confirmação; com recebimentos, exige acordo de devolução.
+Encerra as cobranças e libera o imóvel, preservando histórico e caixa.
+
+Validação: `supabase/tests/edit_sale.sql` executado com ROLLBACK no banco;
+correção de cliente/valor/data, fechamento dos cronogramas, centavos, fim de mês,
+idempotência, versão antiga, bloqueio após recebimento/estorno, cancelamento
+e restrição de papel. Nenhum dado de teste permanece salvo.
+
 - `npm run build`: TypeScript e build de produção.
 - `npm test`: conversão monetária e situação de parcelas, incluindo pagamento parcial em atraso.
 - `src/lib/financial.test.ts`: consolidação por cliente/imóvel, múltiplas vendas, obrigações parciais, estornos, categorias, filtros combinados, intervalos de data, seleção vazia e CSV com proteção contra fórmulas.
